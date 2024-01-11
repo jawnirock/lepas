@@ -1,0 +1,34 @@
+<div class="content-fit">
+    {% if search.performed %}
+        <div class="search-title">
+            RESULTS FOR '{{ search.terms }}'
+        </div>
+        <div class="products">
+            {% for product in search.results %}
+                <div class="product">
+                    <a href="{{ product.url }}">
+                        <img src="{{ product.featured_image | image_url: height: 400 }}" alt="">
+                        {{ product.title }}<br>
+                        {{ product.price | money }}       
+                    </a>
+                    <div class="product-colors">
+                        {% assign colors = product.metafields.custom.other_colors.value %}                
+                        {% for color in colors %}                  
+                            <a class="product-color"
+                                href="{{ color.product_url }}"
+                                style="background-color: {{ color.color }};)"
+                                tabindex="0"
+                            ></a>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+    {% else %}
+        <div>
+            NO RESULTS
+        </div>
+    {% endif %}
+
+</div>

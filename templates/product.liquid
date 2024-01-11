@@ -1,0 +1,70 @@
+<div class="content-fit">
+
+<div class="product-page">
+    <div class="product-images">
+        {% for image in product.images %}
+            <img src="{{ image | image_url: height: 800 }}" alt="">
+        {% endfor %}        
+    </div>
+    <div class="product-main">
+        <img src="{{ product.featured_image | image_url: height: 800 }}" alt="">
+    </div>
+    <div class="product-info">
+        <div class="product-info-title">
+            {{ product.title }}<br>
+            {{ product.price | money }}       
+        </div>
+        <div class="product-colors">
+            {% assign colors = product.metafields.custom.other_colors.value %}                
+            {% for color in colors %}                  
+                <a class="product-color"
+                    href="{{ color.product_url }}"
+                    style="background-color: {{ color.color }};)"
+                    tabindex="0"
+                ></a>
+            {% endfor %}
+        </div>
+        <div class="product-info-desc">
+            {{ product.description }}        
+        </div>
+        
+            <div class="custom-dropdown">
+                <div class="selected-variant" id="selectedVariant">
+                    <span>
+                        SELECT A SIZE
+                    </span>
+                    <img src="{{ 'dropdown.png' |  asset_url }}" alt="">                    
+                </div>
+                <div class="dropdown-options">
+                    {% for variant in product.variants %}
+                    {% assign hasStock = variant.inventory_quantity > 0 %}
+                    {% if variant.inventory_quantity > 0 %}
+                        <div class="dropdown-option stock" data-variant-id="{{ variant.id }}">
+                            {{ variant.title }} 
+                        </div>
+                        {% else  %}
+                        <div class="dropdown-option no-stock" data-variant-id="{{ variant.id }}">
+                            {{ variant.title }}
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            <!-- Add to Cart Form -->
+            <form action="javascript:void(0);" method="post" id="addToCartForm">
+            {% for variant in product.variants %}
+                <input type="hidden" name="id" value="{{ variant.id }}">
+                <!-- Add other variant-specific input fields if needed -->
+            {% endfor %}
+            <input id="addToCartButton" type="submit" value="Add to Cart">
+            </form>
+
+
+
+    </div>
+</div>
+
+
+
+
+</div>

@@ -1,0 +1,44 @@
+<header class="header">
+    <a href="/">
+      <h1>LE PAS</h1>
+    </a>      
+    <div class="header-search">
+      <form action="/search">
+        <input style="background-image: url({{ 'search.svg' |  asset_url }});" type="search" value="{{search.terms}}" name="q" />
+      </form>
+    </div>
+</header>
+
+<div class="menu menu-left">
+    <strong>
+      <a href="/collections/store">ONLINE STORE</a>
+    </strong>
+    <div style="height: {{ settings.menu_left_space_1 }}"></div>
+    <a href="/collections/store/new-in">NEW IN</a>
+    <div style="height: {{ settings.menu_left_space_2 }}"></div>
+    <a href="/collections/store">ALL</a>
+    {% for link in linklists.categories.links -%}
+        <a href="/collections/store/{{link.title  | downcase  | replace: ' ', '-'  }}">
+            {{ link.title | upcase }}
+        </a>
+    {%- endfor %}
+</div>
+
+<div class="menu menu-right">
+    <a class="cart-button" href="#">CART</a>
+    <a href="/account">ACCOUNT</a>
+    <a href="/pages/client-service">CLIENT SERVICE</a>
+    <div style="height: {{ settings.menu_right_space_1 }}"></div>
+    {% for link in linklists.main-menu.links -%}
+        <a href="{{ link.url }}">
+            {{ link.title | upcase }}
+        </a>
+    {%- endfor %}
+</div>
+
+<div class="cart">
+    <div class="cart-overlay" style="background-color: {{ settings.cart_bg_color }}; opacity: {{ settings.cart_bg_opacity }};"></div>
+    <div class="cart-content" id="sidebar-cart">
+      {% render 'cart' %}
+    </div>
+</div>

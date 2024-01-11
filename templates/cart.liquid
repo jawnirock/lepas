@@ -1,0 +1,10 @@
+<div id="cart-container">
+    <div class="cart-title">YOUR CART</div>
+    {% for item in cart.items %}
+        <div>
+            {{ item.title }} ({{ item.quantity }})
+        </div>    
+    {% endfor %}
+</div>
+
+

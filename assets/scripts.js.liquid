@@ -1,0 +1,179 @@
+$(document).ready(function () {
+  const products = $('.product');
+  const productsPerPage = 12;
+  let visibleProducts = productsPerPage;
+
+  // Initially hide all products beyond the first 3
+  products.slice(productsPerPage).hide();
+
+  // Function to check if the user has scrolled to the bottom
+  function isBottom() {
+    return $(window).scrollTop() + $(window).height() >= $(document).height();
+  }
+
+
+  $('.product-images img').click(function(){
+    let ref = $(this).attr('src')
+    console.log(ref)
+    $('.product-main img').attr('src', ref)
+  })
+
+  $('.custom-dropdown').click(function(){
+    $('.dropdown-options').toggle();
+    $('.selected-variant img').toggleClass('reverse');
+  })
+
+  $('.dropdown-option.stock').on('click', function () {
+      const variantId = $(this).data('variant-id');
+      const variantTitle = $(this).text();
+      $('#addToCartForm input[name="id"]').val(variantId);
+      $('#selectedVariant span').text(variantTitle);
+      $('#addToCartButton').show();
+  });
+
+  $('.cart-button, .continue-shopping, .cart-overlay').click(function(){
+    $('.cart').fadeToggle()();
+  })
+
+  $('#addToCartButton').click(function () {
+      // Get form data
+      const formData = $('#addToCartForm').serialize();
+
+      // Use Shopify's AJAX API to add the variant to the cart
+    $.ajax({
+      type: 'POST',
+      url: '/cart/add.js',
+      data: formData,
+      dataType: 'json',
+      success: function (response) {
+        console.log('Item added to cart:', response);
+
+        // Fetch the updated cart content using Shopify's AJAX API
+        $.ajax({
+          type: 'GET',
+          url: '/cart',
+          dataType: 'html',
+          success: function (cartContent) {
+            const extractedContent = $(cartContent).find('#cart-container').html();
+            // Update the sidebar cart with the new content
+            $('#sidebar-cart').html(extractedContent);
+            $('.cart').fadeIn();
+            // Optionally, you can add animations or other UI updates here
+          }
+        });
+      }
+    });
+  });
+  $('.quantity-button').click(function () {
+    // Get the variant ID and action from the data attributes
+    const variantId = $(this).data('variant-id');
+    const action = $(this).data('action');
+    
+    // Determine the quantity adjustment based on the action
+    const quantityAdjustment = action === 'increment' ? 1 : -1;
+
+    // Use Shopify's AJAX API to get the current cart state
+    $.ajax({
+      type: 'GET',
+      url: '/cart.js',
+      dataType: 'json',
+      success: function (cart) {
+        // Find the current quantity of the item
+        const currentItem = cart.items.find(item => item.id === variantId);
+
+        // Calculate the new quantity
+        const newQuantity = currentItem.quantity + quantityAdjustment;
+
+        // Use Shopify's AJAX API to update the cart
+        $.ajax({
+          type: 'POST',
+          url: '/cart/update.js',
+          data: {
+            updates: {
+              [variantId]: newQuantity,
+            },
+          },
+          dataType: 'json',
+          success: function (updatedCart) {
+            // Update the quantity display
+            const updatedItem = updatedCart.items.find(item => item.id === variantId);
+            $(`.quantity-display[data-variant-id="${variantId}"]`).text(updatedItem.quantity);
+          }
+        });
+      }
+    });
+  });
+  // Click event for remove buttons
+  $('.remove-button').click(function () {
+    const variantId = $(this).data('variant-id');
+    // Use Shopify's AJAX API to update the cart
+    $.ajax({
+      type: 'POST',
+      url: '/cart/update.js',
+      data: {
+        updates: {
+          [variantId]: 0, // Set quantity to 0 to remove the item
+        },
+      },
+      dataType: 'json',
+      success: function (updatedCart) {
+        // Remove the item's HTML from the cart container
+        $(`.cart-item[data-variant-id="${variantId}"]`).remove();
+      }
+    });
+  });
+    // Load more products when reaching the bottom
+  
+
+
+  $(window).scroll(function () {
+    if (isBottom()) {
+      // Show the next 3 products
+      products.slice(visibleProducts, visibleProducts + productsPerPage).show();
+
+      // If there are no more products, detach the scroll event to prevent unnecessary checks
+      if (visibleProducts + productsPerPage >= products.length) {
+        $(window).off('scroll');
+      }
+
+      // Update the counter for visible products
+      visibleProducts += productsPerPage;
+    }
+  });
+});
+
+$(document).ready(function () {
+  function resizeImages($row) {
+    var containerWidth = $row.width();
+    var totalImageWidth = 0;
+
+    $row.find('img').each(function () {
+      totalImageWidth += $(this).outerWidth(true);
+    });
+
+    var scale = containerWidth / totalImageWidth;
+    var newHeight = $row.find('img').first().height() * scale;
+
+    $row.find('img').css('height', newHeight + 'px').css('opacity', 1);
+  }
+
+  // Set initial height to a fixed value
+  $('.image-container img').css('height', '100px'); // Adjust the height as needed
+
+  // Handle window load event
+  $(window).on('load', function () {
+    $('.image-container').each(function () {
+      resizeImages($(this));
+    });
+
+    // Handle window resize event
+    $(window).resize(function () {
+      $('.image-container').each(function () {
+        resizeImages($(this));
+      });
+    });
+  });
+});
+
+
+

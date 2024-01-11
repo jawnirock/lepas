@@ -1,0 +1,36 @@
+<div id="cart-container">
+    <div class="cart-title">YOUR CART</div>
+    <div class="cart-items">
+        {% for item in cart.items %}
+            <div class="cart-item" data-variant-id="{{ item.variant.id }}">
+                <div>
+                    <img src="{{ item.image | image_url: height: 800 }}" alt="">
+                </div>
+                <div>
+                    {{ item.product.title }} <br>
+                    {{ item.final_price | money }} <br><br>
+                    {{ item.variant.title }} <br><br>
+                    <div>
+                        <span>QUANTITY</span>
+                        <button class="quantity-button" data-variant-id="{{ item.id }}" data-action="decrement">-</button>
+                        <span class="quantity-display" data-variant-id="{{ item.id }}">{{ item.quantity }}</span>
+                        <button class="quantity-button" data-variant-id="{{ item.id }}" data-action="increment">+</button>
+                        <button class="remove-button" data-variant-id="{{ item.variant.id }}">Remove</button>
+                    </div>
+                </div>
+            </div>    
+        {% endfor %}
+    </div>
+    <div class="cart-footer">
+        <div class="cart-footer-top">
+            ESTIMATED TOTAL &nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp; <strong>{{cart.total_price | money}}</strong>
+        </div>
+        <div class="cart-footer-buttons">
+            <div class="continue-shopping">CONTINUE SHOPPING</div>
+            <a href="/checkout">CHECKOUT</a>
+        </div>
+    </div>
+</div>
+
+
+
