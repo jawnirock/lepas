@@ -1,0 +1,25 @@
+<div class="content-fit">
+  {% form 'customer_login' %}
+    {{ form.errors | default_errors }}
+
+  
+  
+    <div class="email">
+      <label for="email">Email</label>
+      <input type="email" name="customer[email]">
+    </div>
+  
+    <div class="password">
+      <label for="password">Password</label>
+      <input type="password" name="customer[password]">
+    </div>
+  
+    <div class="submit">
+      <input type="submit" value="Sign in">
+    </div>
+  {% endform %}
+ 
+  <a href="/account/register">Create an account</a>
+  {% comment %} <p><a href="/account/reset_password">Forgot your password? Reset it here.</a></p> {% endcomment %}
+
+</div>

@@ -57,6 +57,7 @@ body {
   min-width: 185px;
   right: 0;
   padding: 0 30px;
+  z-index: 300;
 }
 .menu a {
   display: block;
@@ -77,6 +78,11 @@ body {
 .content-fit {
   margin: 0 auto;
   width: 68%;
+  max-width: calc(100% - 370px);
+}
+.content-collection-fit {
+  margin: 0 auto;
+  width: 50%;
   max-width: calc(100% - 370px);
 }
 
@@ -122,6 +128,7 @@ body {
   height: 5px;
   width: 30px;
   margin-right: 5px;
+  background-size: cover;
 }
 .product-page {
   display: -webkit-box;
@@ -338,7 +345,7 @@ body {
   text-transform: uppercase;
 }
 
-.image-container {
+.collections .image-container {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -346,10 +353,87 @@ body {
       flex-wrap: nowrap; /* Ensure all items stay in one row without wrapping */
   overflow-x: auto; /* Enable horizontal scrolling if the content overflows the container */
 }
-
-.image-container img {
+.collections .image-container img {
   height: auto; /* Allow the height to adjust according to the aspect ratio */
   width: auto; /* Allow the width to adjust according to the aspect ratio */
   max-width: 100%; /* Limit the width to prevent stretching */
   opacity: 0;
+  cursor: pointer;
+}
+.collections-show {
+  position: absolute;
+  background: white;
+  width: 100%;
+  height: calc(100% - 130px);
+  left: 0;
+  top: 130px;
+  z-index: 10;
+}
+.collections-show .content-fit {
+  position: relative;
+  height: 100%;
+}
+.collections-show-img {
+  width: 100%;
+}
+.collections-show-desc {
+  text-transform: uppercase;
+  position: absolute;
+  bottom: -75px;
+  left: 90px;
+}
+.collections-show-info {
+  position: relative;
+  min-height: 200px;
+}
+.collections-show-link {
+  text-align: center;
+  position: absolute;
+  right: 20px;
+  bottom: 80px;
+  cursor: pointer;
+  color: black;
+  text-decoration: underline;
+}
+.collections-show-link:hover {
+  color: black;
+  text-decoration: none;
+}
+.collections-show-close {
+  text-align: center;
+  position: absolute;
+  right: 35px;
+  bottom: 20px;
+  cursor: pointer;
+}
+.collections-show-close span:hover {
+  text-decoration: underline;
+}
+.collections-show-top {
+  position: relative;
+}
+.collections-show-prev, .collections-show-next {
+  position: absolute;
+  width: 45%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  cursor: pointer;
+}
+.collections-show-next {
+  right: 0;
+  left: auto;
+}
+.collections-show.vertical .collections-show-img {
+  width: 70%;
+}
+.collections-show.vertical .collections-show-info {
+  min-height: 0;
+}
+.collections-show.vertical .collections-show-desc {
+  margin: 0;
+  right: 20%;
+  top: 25%;
+  bottom: auto;
+  left: auto;
 }

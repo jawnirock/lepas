@@ -124,7 +124,102 @@ $(document).ready(function () {
   });
     // Load more products when reaching the bottom
   
+  function updateDisplayedContent(element) {
+    let title = element.data('title');
+    let price = element.data('price');
+    let img = element.data('image');
+    let url = element.data('link');
+    let shape = element.data('shape');
 
+    // Update the displayed content
+    // $('.collections-show-img').attr('src', img)
+    $('.collections-show-desc').html(title + '<br>' + price);
+    $('.collections-show-link').attr('href', url);
+    $('.collections-show-img').attr('src', img)
+    $('.collections-show').removeClass('vertical horizontal')
+    $('.collections-show').addClass(shape)
+  }
+
+  $('.collections .image-container>div').click(function() {
+    // Remove the 'active' class from all elements and add it to the clicked element
+    $('.collections .image-container>div').removeClass('active');
+    $(this).addClass('active');
+
+    // Update the displayed content
+    updateDisplayedContent($(this));
+
+    // Show the collections-show element
+    $('.collections-show').show();
+    $('.collections .image-container').hide()
+  });
+
+  $('.collections-show-next').click(function() {
+    // Find the next div with the 'active' class
+    let next = $('.collections .image-container .active').next("div");
+
+    // If there is no next element, loop back to the first one
+    if (next.length === 0) {
+      next = $('.collections .image-container>div').first();
+    }
+
+    // Remove the 'active' class from all elements and add it to the next element
+    $('.collections .image-container>div').removeClass('active');
+    next.addClass('active');
+
+    // Update the displayed content
+    updateDisplayedContent(next);
+  });
+
+  $('.collections-show-prev').click(function() {
+    // Find the previous div with the 'active' class
+    let prev = $('.collections .image-container .active').prev("div");
+
+    // If there is no previous element, loop back to the last one
+    if (prev.length === 0) {
+      prev = $('.collections .image-container>div').last();
+    }
+
+    // Remove the 'active' class from all elements and add it to the previous element
+    $('.collections .image-container>div').removeClass('active');
+    prev.addClass('active');
+
+    // Update the displayed content
+    updateDisplayedContent(prev);
+  });
+
+  $('.collections-show-close').click(function(){
+    $('.collections-show').hide()
+    $('.collections .image-container').css('display', 'flex')
+  })
+
+  $('#privacy_policy, #confirm_age').on('change', function() {
+    updateSubmitButtonState();
+  });
+
+  function updateSubmitButtonState() {
+    const privacyPolicyChecked = $('#privacy_policy').prop('checked');
+    const confirmAgeChecked = $('#confirm_age').prop('checked');
+    $('#submit_button').prop('disabled', !privacyPolicyChecked || !confirmAgeChecked);
+  }
+
+
+  function addNewAddress() {
+    var formData = $('#new-address-form').serialize();
+    
+    $.ajax({
+      type: 'POST',
+      url: '/account/addresses', // Update the endpoint based on your requirements
+      data: formData,
+      success: function(response) {
+        // Handle the success response, e.g., display a message or update the UI
+        console.log('Address added successfully');
+      },
+      error: function(error) {
+        // Handle the error response
+        console.error('Error adding address:', error);
+      }
+    });
+  }
 
   $(window).scroll(function () {
     if (isBottom()) {
@@ -155,6 +250,15 @@ $(document).ready(function () {
     var newHeight = $row.find('img').first().height() * scale;
 
     $row.find('img').css('height', newHeight + 'px').css('opacity', 1);
+
+    // Add class based on image orientation
+    $row.find('img').each(function () {
+      if ($(this).height() > $(this).width()) {
+        $(this).parent().attr('data-shape', 'vertical');
+      } else {
+        $(this).parent().attr('data-shape', 'horizontal');
+      }
+    });
   }
 
   // Set initial height to a fixed value
@@ -174,6 +278,7 @@ $(document).ready(function () {
     });
   });
 });
+
 
 
 

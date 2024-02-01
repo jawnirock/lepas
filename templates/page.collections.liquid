@@ -1,0 +1,32 @@
+<div class="collections">
+    
+    {% assign excludedCollectionTitle = "Store" %}
+    
+    {% for collection in collections %}
+      {% unless collection.title == excludedCollectionTitle %}
+        <div class="image-container">
+          {% for product in collection.products %}
+            <div data-link="{{ product.url }}" data-title="{{ product.title }}" data-price="{{ product.price | money_with_currency }} " data-image="{{ product.metafields.custom.collection_img | image_url: height: 900 }}">
+                <img src="{{ product.metafields.custom.collection_img | image_url: height: 900 }}" alt="">
+            </div>
+          {% endfor %}
+        </div>
+      {% endunless %}
+    {% endfor %}
+
+    <div class="collections-show" style="display: none;">
+      <div class="content-fit">
+        <div class="collections-show-top">
+          <img class="collections-show-img" src="" alt="">
+          <div class="collections-show-desc"></div>
+          <div class="collections-show-next"></div>
+          <div class="collections-show-prev"></div>
+        </div>
+        <div class="collections-show-info">
+          <a href class="collections-show-link">SHOP NOW</a>
+          <div class="collections-show-close"> <span>CLOSE</span> <br> X</div>
+        </div>
+      </div>
+    </div>
+
+</div>
