@@ -4,6 +4,10 @@ body {
   line-height: 1.3;
   font-size: 13px;
   font-weight: 500;
+  text-transform: uppercase;
+}
+body button:hover, body button:focus {
+  outline: none;
 }
 
 .container-main {
@@ -25,6 +29,8 @@ body {
   -webkit-box-pack: justify;
       -ms-flex-pack: justify;
           justify-content: space-between;
+  position: relative;
+  z-index: 100;
 }
 .header h1 {
   font-size: 55px;
@@ -43,6 +49,7 @@ body {
   border-bottom: 1px solid black;
   background-repeat: no-repeat;
   background-position: right center;
+  background-color: transparent;
   padding: 5px 0;
   background-size: 15px;
 }
@@ -60,8 +67,9 @@ body {
   z-index: 300;
 }
 .menu a {
-  display: block;
+  display: table;
   color: black;
+  background-color: var(--menu-color);
 }
 .menu a:hover, .menu a:active {
   font-weight: 700;
@@ -72,7 +80,7 @@ body {
 }
 .menu-right {
   right: 0;
-  text-align: right;
+  direction: rtl;
 }
 
 .content-fit {
@@ -252,7 +260,7 @@ body {
   top: 0;
   width: 100%;
   height: 100%;
-  z-index: 10;
+  z-index: 310;
 }
 .cart-content {
   position: fixed;
@@ -262,7 +270,7 @@ body {
   right: 0;
   top: 0;
   min-width: 350px;
-  z-index: 12;
+  z-index: 312;
 }
 .cart-title {
   padding: 30px 0 0 40px;
@@ -436,4 +444,118 @@ body {
   top: 25%;
   bottom: auto;
   left: auto;
+}
+
+.home img {
+  width: 100%;
+  height: 100%;
+  -o-object-fit: cover;
+     object-fit: cover;
+  margin-top: -130px;
+}
+
+.mainform strong {
+  display: block;
+  margin-bottom: 30px;
+}
+.mainform [type=submit] {
+  text-transform: uppercase;
+  font-weight: bolder;
+  border: 0;
+  background: none;
+  padding: 0;
+  margin-bottom: 50px;
+}
+.mainform [type=submit]:hover {
+  text-decoration: underline;
+}
+.mainform input[type=text], .mainform input[type=password], .mainform input[type=email], .mainform select {
+  background: #e9e9e9;
+  border: 0;
+  padding: 3px 15px;
+  margin: 15px 0;
+  width: 30vw;
+  min-width: 200px;
+}
+.mainform input[type=text]::-webkit-input-placeholder, .mainform input[type=password]::-webkit-input-placeholder, .mainform input[type=email]::-webkit-input-placeholder, .mainform select::-webkit-input-placeholder {
+  color: black;
+}
+.mainform input[type=text]::-moz-placeholder, .mainform input[type=password]::-moz-placeholder, .mainform input[type=email]::-moz-placeholder, .mainform select::-moz-placeholder {
+  color: black;
+}
+.mainform input[type=text]:-ms-input-placeholder, .mainform input[type=password]:-ms-input-placeholder, .mainform input[type=email]:-ms-input-placeholder, .mainform select:-ms-input-placeholder {
+  color: black;
+}
+.mainform input[type=text]::-ms-input-placeholder, .mainform input[type=password]::-ms-input-placeholder, .mainform input[type=email]::-ms-input-placeholder, .mainform select::-ms-input-placeholder {
+  color: black;
+}
+.mainform input[type=text]::placeholder, .mainform input[type=password]::placeholder, .mainform input[type=email]::placeholder, .mainform select::placeholder {
+  color: black;
+}
+.mainform input[type=text]:hover, .mainform input[type=text]:focus, .mainform input[type=password]:hover, .mainform input[type=password]:focus, .mainform input[type=email]:hover, .mainform input[type=email]:focus, .mainform select:hover, .mainform select:focus {
+  outline: none;
+}
+.mainform a {
+  text-transform: uppercase;
+  color: black;
+  font-weight: bolder;
+  margin: 15px 0;
+  display: block;
+}
+
+.account a {
+  text-transform: uppercase;
+  color: black;
+  text-decoration: underline;
+  display: block;
+}
+.account table {
+  font-size: 13px;
+  width: 100%;
+}
+.account table th {
+  font-weight: 500;
+}
+.account table td {
+  text-transform: initial;
+  padding-top: 20px;
+}
+.account table td:nth-child(1) {
+  color: blue;
+}
+
+.addresses-list {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+}
+.addresses-list-item {
+  -webkit-box-flex: 0;
+      -ms-flex: 0 0 calc(33.333% - 10px);
+          flex: 0 0 calc(33.333% - 10px); /* Adjust the percentage and spacing as needed */
+  margin-bottom: 30px;
+}
+.addresses-list-item p, .addresses-list-item strong {
+  max-width: 180px;
+  margin: 0;
+}
+.addresses-list-item [type=submit] {
+  font-weight: 500;
+  text-decoration: underline;
+  margin: 2px 0px;
+}
+.addresses-list strong {
+  margin-bottom: 0;
+}
+.addresses input[type=text], .addresses input[type=password], .addresses input[type=email], .addresses select {
+  margin-top: 0;
+  margin-bottom: 30px;
+}
+.addresses label {
+  margin: 0;
 }

@@ -1,5 +1,4 @@
 <div class="home" style="background-image: url();">
-
-{% comment %} <img src="{{ settings.homepage_img | image_url }}"> {% endcomment %}
-
+    {%- assign img_url = settings.homepage_img | image_url: master -%}
+    <img src="{{img_url}}">
 </div>

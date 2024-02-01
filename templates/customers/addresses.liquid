@@ -1,70 +1,83 @@
 <!-- addresses.liquid -->
 
 
-  <div class="addresses content-fit">
-    <h2>Manage Addresses</h2>
+  <div class="addresses content-fit mainform">
+      <br>
+      <br>
+    <strong style="margin-bottom: 0"> Addresses</strong>
+    <a style="font-weight: 400; color:grey; margin-top: 5px; margin-bottom: 40px;" href="/account">
+      << Back to account overview
+    </a>
 
-    {% if customer %}
-      <h3>Shipping Addresses</h3>
-      {% if customer.addresses.size > 0 %}
-        <ul>
-          {% for address in customer.addresses %}
-            <li>
-              <strong>{{ address.first_name }} {{ address.last_name }}</strong><br>
-              {% if address.company %}
-                {{ address.company }}<br>
-              {% endif %}
-              {{ address.address1 }}<br>
-              {{ address.address2 }}<br>
-              {{ address.city }}, {{ address.province_code }}<br>
-              {{ address.country }}<br>
-              {{ address.zip }}
-              
-              <form action="/account/addresses/{{ address.id }}" method="post" style="display: inline;">
-                <input type="hidden" name="_method" value="delete">
-                <button type="submit">Delete</button>
-              </form>
-
-              {% comment %} <a href="/account/addresses/{{ address.id }}/edit">Edit</a>
-
-              {% if customer.default_address and customer.default_address.id == address.id %}
-                <span>(Default Address)</span>
-              {% else %}
-                <form action="/account/addresses/{{ address.id }}/default" method="post" style="display: inline;">
-                  <button type="submit">Set Default</button>
+    <div class="addresses-list">
+      {% if customer %}
+        {% if customer.addresses.size > 0 %}
+            {% for address in customer.addresses %}
+              <div class="addresses-list-item">
+                {% if address.id == customer.default_address.id %}
+                  <strong>Default</strong>
+                {% else %}
+                {% endif %}
+                <p>{{ address.first_name }} {{ address.last_name }}</p>
+                <p>{{ address.address1 }}</p>
+                <p>{{ address.address2 }}</p>
+                <p>{{ address.city }}, {{ address.province_code }}</p>
+                <p>{{ address.country }}</p>
+                <p>{{ address.zip }}</p> 
+                
+                <form action="/account/addresses/{{ address.id }}" method="post" style="display: inline;">
+                  <input type="hidden" name="_method" value="delete">
+                  <button type="submit">Delete</button>
                 </form>
-              {% endif %} {% endcomment %}
-            </li>
-          {% endfor %}
-        </ul>
-      {% else %}
-        <p>No shipping addresses found.</p>
-      {% endif %}
+                
+                {% if customer.default_address and customer.default_address.id == address.id %}
+                  {% else %}
+                    {%- form 'customer_address', address -%}
+                      <input
+                        type="hidden"
+                        id="address_default_address_new"
+                        name="address[default]"
+                        value="1"
+                      >
+                      <button type="submit" value="Set as default">
+                        Set as default
+                      </button>
+                    {%- endform -%}
+                {% endif %}
+              {% comment %} <a href="/account/addresses/{{ address.id }}/edit">Edit</a> {% endcomment %}
+              </div>
+            {% endfor %}
+        {% else %}
+          <p>No shipping addresses found.</p>
+        {% endif %}
+    </div>
 
-
-      <h3>Add a New Shipping Address</h3>
+      <br>
+      <br>
+      <br>
+      <strong>Add a New Address</strong>
       {% form 'customer_address', customer.new_address %}
-        <label for="new_address_first_name">First Name:</label>
+        <label for="new_address_first_name">First Name:</label> <br>
         <input type="text" name="address[first_name]" id="new_address_first_name" required>
-
-        <label for="new_address_last_name">Last Name:</label>
+        <br>
+        <label for="new_address_last_name">Last Name:</label> <br>
         <input type="text" name="address[last_name]" id="new_address_last_name" required>
-
-        <label for="new_address_company">Company:</label>
+        <br>
+        <label for="new_address_company">Company:</label> <br>
         <input type="text" name="address[company]" id="new_address_company">
-
-        <label for="new_address_address1">Address:</label>
+        <br>
+        <label for="new_address_address1">Address:</label> <br>
         <input type="text" name="address[address1]" id="new_address_address1" required>
-
-        <label for="new_address_address2">Apartment, Suite, etc:</label>
+        <br>
+        <label for="new_address_address2">Apartment, Suite, etc:</label> <br>
         <input type="text" name="address[address2]" id="new_address_address2">
-
-        <label for="new_address_city">City:</label>
+        <br>
+        <label for="new_address_city">City:</label> <br>
         <input type="text" name="address[city]" id="new_address_city" required>
-
-        <label for="new_address_country">Country:</label>
+        <br>
+        <label for="new_address_country">Country:</label> <br>
         <select name="address[country]" id="new_address_country" required>
-          {% assign all_countries = "Afghanistan,Albania,Algeria,Andorra,Angola,Antigua and Barbuda,Argentina,Armenia,Australia,Austria,Azerbaijan,Bahamas,Bahrain,Bangladesh,Barbados,Belarus,Belgium,Belize,Benin,Bhutan,Bolivia,Bosnia and Herzegovina,Botswana,Brazil,Brunei,Bulgaria,Burkina Faso,Burundi,Cabo Verde,Cambodia,Cameroon,Canada,Central African Republic,Chad,Chile,China,Colombia,Comoros,Congo (Congo-Brazzaville),Costa Rica,Cote d'Ivoire,Croatia,Cuba,Cyprus,Czechia (Czech Republic),Democratic Republic of the Congo,Denmark,Djibouti,Dominica,Dominican Republic,Ecuador,Egypt,El Salvador,Equatorial Guinea,Eritrea,Estonia,Eswatini (fmr. 'Swaziland'),Ethiopia,Fiji,Finland,France,Gabon,Gambia,Georgia,Germany,Ghana,Greece,Grenada,Guatemala,Guinea,Guinea-Bissau,Guyana,Haiti,Holy See,Honduras,Hungary,Iceland,India,Indonesia,Iran,Iraq,Ireland,Israel,Italy,Jamaica,Japan,Jordan,Kazakhstan,Kenya,Kiribati,Kuwait,Kyrgyzstan,Laos,Latvia,Lebanon,Lesotho,Liberia,Libya,Liechtenstein,Lithuania,Luxembourg,Madagascar,Malawi,Malaysia,Maldives,Mali,Malta,Marshall Islands,Mauritania,Mauritius,Mexico,Micronesia,Moldova,Monaco,Mongolia,Montenegro,Morocco,Mozambique,Myanmar (formerly Burma),Namibia,Nauru,Nepal,Netherlands,New Zealand,Nicaragua,Niger,Nigeria,North Korea,North Macedonia (formerly Macedonia),Norway,Oman,Pakistan,Palau,Palestine State,Panama,Papua New Guinea,Paraguay,Peru,Philippines,Poland,Portugal,Qatar,Romania,Russia,Rwanda,Saint Kitts and Nevis,Saint Lucia,Saint Vincent and the Grenadines,Samoa,San Marino,Sao Tome and Principe,Saudi Arabia,Senegal,Serbia,Seychelles,Sierra Leone,Singapore,Slovakia,Slovenia,Solomon Islands,Somalia,South Africa,South Korea,South Sudan,Spain,Sri Lanka,Sudan,Suriname,Sweden,Switzerland,Syria,Tajikistan,Tanzania,Thailand,Timor-Leste,Togo,Tonga,Trinidad and Tobago,Tunisia,Turkey,Turkmenistan,Tuvalu,Uganda,Ukraine,United Arab Emirates,United Kingdom,United States of America,Uruguay,Uzbekistan,Vanuatu,Venezuela,Vietnam,Yemen,Zambia,Zimbabwe" | split: "," %}
+            {% assign all_countries = "Afghanistan,Albania,Algeria,Andorra,Angola,Antigua and Barbuda,Argentina,Armenia,Australia,Austria,Azerbaijan,Bahamas,Bahrain,Bangladesh,Barbados,Belarus,Belgium,Belize,Benin,Bhutan,Bolivia,Bosnia and Herzegovina,Botswana,Brazil,Brunei,Bulgaria,Burkina Faso,Burundi,Cabo Verde,Cambodia,Cameroon,Canada,Central African Republic,Chad,Chile,China,Colombia,Comoros,Congo (Congo-Brazzaville),Costa Rica,Cote d'Ivoire,Croatia,Cuba,Cyprus,Czechia (Czech Republic),Democratic Republic of the Congo,Denmark,Djibouti,Dominica,Dominican Republic,Ecuador,Egypt,El Salvador,Equatorial Guinea,Eritrea,Estonia,Eswatini (fmr. 'Swaziland'),Ethiopia,Fiji,Finland,France,Gabon,Gambia,Georgia,Germany,Ghana,Greece,Grenada,Guatemala,Guinea,Guinea-Bissau,Guyana,Haiti,Holy See,Honduras,Hungary,Iceland,India,Indonesia,Iran,Iraq,Ireland,Israel,Italy,Jamaica,Japan,Jordan,Kazakhstan,Kenya,Kiribati,Kuwait,Kyrgyzstan,Laos,Latvia,Lebanon,Lesotho,Liberia,Libya,Liechtenstein,Lithuania,Luxembourg,Madagascar,Malawi,Malaysia,Maldives,Mali,Malta,Marshall Islands,Mauritania,Mauritius,Mexico,Micronesia,Moldova,Monaco,Mongolia,Montenegro,Morocco,Mozambique,Myanmar (formerly Burma),Namibia,Nauru,Nepal,Netherlands,New Zealand,Nicaragua,Niger,Nigeria,North Korea,North Macedonia (formerly Macedonia),Norway,Oman,Pakistan,Palau,Palestine State,Panama,Papua New Guinea,Paraguay,Peru,Philippines,Poland,Portugal,Qatar,Romania,Russia,Rwanda,Saint Kitts and Nevis,Saint Lucia,Saint Vincent and the Grenadines,Samoa,San Marino,Sao Tome and Principe,Saudi Arabia,Senegal,Serbia,Seychelles,Sierra Leone,Singapore,Slovakia,Slovenia,Solomon Islands,Somalia,South Africa,South Korea,South Sudan,Spain,Sri Lanka,Sudan,Suriname,Sweden,Switzerland,Syria,Tajikistan,Tanzania,Thailand,Timor-Leste,Togo,Tonga,Trinidad and Tobago,Tunisia,Turkey,Turkmenistan,Tuvalu,Uganda,Ukraine,United Arab Emirates,United Kingdom,United States of America,Uruguay,Uzbekistan,Vanuatu,Venezuela,Vietnam,Yemen,Zambia,Zimbabwe" | split: "," %}
           {% for country in all_countries %}
             {% if country == "United Kingdom" %}
               <option value="{{ country }}" selected>{{ country }}</option>
@@ -73,10 +86,10 @@
             {% endif %}
           {% endfor %}
         </select>
-
-        <label for="new_address_zip">ZIP Code:</label>
+          <br>
+        <label for="new_address_zip">ZIP Code:</label> <br>
         <input type="text" name="address[zip]" id="new_address_zip" required>
-
+          <br>
         <button type="submit">Add Address</button>
       {% endform %}
     {% else %}

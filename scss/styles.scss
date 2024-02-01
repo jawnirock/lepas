@@ -5,6 +5,12 @@ body {
     line-height: 1.3;
     font-size: 13px;
     font-weight: 500;
+    text-transform: uppercase;
+    button {
+        &:hover, &:focus {
+            outline: none;
+        }        
+    }
 }
 
 .container {
@@ -22,6 +28,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    position: relative;
+    z-index: 100;
     h1 {
         font-size: 55px;
     }
@@ -40,6 +48,7 @@ body {
             border-bottom: 1px solid black;
             background-repeat: no-repeat;
             background-position: right center;
+            background-color: transparent;
             padding: 5px 0;
             background-size: 15px;
             &:hover, &:focus {
@@ -58,8 +67,9 @@ body {
     padding: 0 30px;
     z-index: 300;
     a {
-        display: block;
+        display: table;
         color: black;
+        background-color: var(--menu-color);
         &:hover, &:active {
             font-weight: 700;
             text-decoration: none;
@@ -70,7 +80,7 @@ body {
     }
     &-right {
         right: 0;
-        text-align: right;
+        direction: rtl;
     }
 }
 
@@ -239,7 +249,7 @@ body {
         height: 100%;
         // background-color: black;
         // opacity: 0.8;
-        z-index: 10;
+        z-index: 310;
     }
     &-content {
         position: fixed;
@@ -249,7 +259,7 @@ body {
         right: 0;
         top: 0;
         min-width: 350px;
-        z-index: 12;
+        z-index: 312;
     }
     &-title {
         padding: 30px 0 0 40px;
@@ -418,4 +428,108 @@ body {
             }
         }
     }
+}
+
+.home {
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        margin-top: -130px;
+    }
+}
+
+.mainform {
+    strong {
+        display: block;
+        margin-bottom: 30px;
+    }
+    [type=submit] {
+        text-transform: uppercase;
+        font-weight: bolder;
+        border: 0;
+        background: none;
+        padding: 0;
+        margin-bottom: 50px;
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+    input[type=text], input[type=password], input[type=email], select {
+        background: #e9e9e9;
+        border: 0;
+        padding: 3px 15px;
+        margin: 15px 0;
+        width: 30vw;
+        min-width: 200px;
+
+        &::placeholder {
+            color: black;
+        }
+        &:hover, &:focus {
+            outline: none;
+        }
+    }
+    a {
+        text-transform: uppercase;
+        color: black;
+        font-weight: bolder;
+        margin: 15px 0;
+        display: block;
+    }
+}
+
+.account {
+    a {
+        text-transform: uppercase;
+        color: black;
+        text-decoration: underline;
+        display: block;
+    }
+    table {
+        font-size: 13px;
+        width: 100%;
+        th {
+            font-weight: 500;
+        }
+        td {
+            text-transform: initial;
+            padding-top: 20px;
+            &:nth-child(1) {
+                color: blue;
+            }
+        }
+    }
+}
+
+.addresses {
+    &-list {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        &-item {
+            flex: 0 0 calc(33.333% - 10px); /* Adjust the percentage and spacing as needed */
+            margin-bottom: 30px;
+            p, strong {
+                max-width: 180px;
+                margin: 0;
+            }
+            [type=submit] {
+                font-weight: 500;
+                text-decoration: underline;
+                margin: 2px 0px;
+            }
+        }
+        strong {
+            margin-bottom: 0;
+        }
+    }
+    input[type=text], input[type=password], input[type=email], select {
+        margin-top: 0;
+        margin-bottom: 30px;
+    }
+    label {
+        margin: 0;
+    }
+
 }

@@ -3,16 +3,20 @@
         "name": "Homepage",
         "settings": [
             {
-                "type": "image",
+                "type": "image_picker",
                 "id": "homepage_img",
-                "label": "Homepage Background Image",
-                "default": "assets/homepage-background.jpg"
+                "label": "Homepage Background Image"
             }
         ]
     },
     {
         "name": "Menus",
         "settings": [
+            {
+                "type": "color",
+                "id": "menu_background",
+                "label": "Menu text background"
+            },
             {
                 "type": "number",
                 "id": "menu_left_space_1",

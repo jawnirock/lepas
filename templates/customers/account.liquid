@@ -1,16 +1,26 @@
 <div class="content-fit account">
+      <br>
+      <br>
     {% if customer %}
-      <h2>Welcome, {{ customer.first_name }}!</h2>
+      <strong>Welcome, {{ customer.first_name }}!</strong> <br><br>
+      <a href="/account/logout">Log out</a>
+      <br><br><br><br><br>
       <p>Account details</p>
-      <ul>
-        <li><strong>Email:</strong> {{ customer.email }}</li>
-        <!-- Add more customer details as needed -->
-      </ul>
+      <!-- Add more customer details as needed -->
+      {{ customer.email }} <br>
+        {% if customer.default_address.company %}
+          {{ customer.default_address.company }}<br>
+        {% endif %}
+        {{ customer.default_address.address1 }}<br>
+        {{ customer.default_address.address2 }}<br>
+        {{ customer.default_address.city }}, {{ customer.default_address.province_code }}<br>
+        {{ customer.default_address.country }}<br>
+        {{ customer.default_address.zip }}
 
-      <a href="/account/addresses">Manage Addresses</a>
 
+      <a href="/account/addresses">View Addresses ({{ customer.addresses | size }})</a>
+      <br><br><br><br>
 
-      <h3>Orders</h3>
       {% if customer.orders.size > 0 %}
         <table>
           <thead>
@@ -25,11 +35,11 @@
           <tbody>
             {% for order in customer.orders %}
               <tr>
-                <td>{{ order.order_number }}</td>
+                <td>#{{ order.order_number }}</td>
                 <td>{{ order.created_at | date: "%B %d, %Y" }}</td>
                 <td>{{ order.financial_status }}</td>
                 <td>{{ order.fulfillment_status }}</td>
-                <td>{{ order.total_price | money }}</td>
+                <td>{{ order.total_price | money_with_currency }}</td>
               </tr>
             {% endfor %}
           </tbody>
@@ -38,7 +48,6 @@
         <p>No orders found.</p>
       {% endif %}
 
-      <a href="/account/logout">Logout</a>
     {% else %}
       <p>Please <a href="/account/login">login</a> or <a href="/account/register">register</a> to view your account.</p>
     {% endif %}
