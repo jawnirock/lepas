@@ -559,3 +559,72 @@ body button:hover, body button:focus {
 .addresses label {
   margin: 0;
 }
+
+.pagespecial {
+  position: absolute;
+  top: 0px;
+  left: 0;
+  width: 100%;
+  background: white;
+  border-bottom: 1px solid black;
+  padding: 130px 0 50px 0;
+  -webkit-transform: translateY(-100%);
+          transform: translateY(-100%);
+}
+.pagespecial.open {
+  -webkit-transform: translateY(0);
+          transform: translateY(0);
+  -webkit-transition: 0.4s linear;
+  transition: 0.4s linear;
+}
+.pagespecial-open {
+  cursor: pointer;
+}
+
+.footer {
+  padding: 50px 0 60px 40px;
+  border-top: 1px solid black;
+}
+@media only screen and (max-width: 768px) {
+  .footer {
+    padding: 20px 20px 40px 20px;
+  }
+}
+.footer-wrap {
+  width: 60vw;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+}
+@media only screen and (max-width: 768px) {
+  .footer-wrap {
+    width: 100%;
+  }
+}
+.footer-list a {
+  display: block;
+  color: black;
+}
+.footer-list a:hover, .footer-list a:active {
+  font-weight: 700;
+  text-decoration: none;
+}
+.footer-newsletter input {
+  font-family: "Inter", sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  border: 0;
+  border-bottom: 1px solid black;
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-color: transparent;
+  padding: 5px 0;
+  background-size: 15px;
+  width: 22vw;
+}
+.footer-newsletter input:hover, .footer-newsletter input:focus {
+  outline: none;
+}

@@ -27,10 +27,11 @@
 <div class="menu menu-right">
     <a class="cart-button" href="#">CART</a>
     <a href="/account">ACCOUNT</a>
-    <a href="/pages/client-service">CLIENT SERVICE</a>
+    <a class="pagespecial-open" data-link="/pages/client-service">CLIENT SERVICE</a>
     <div style="height: {{ settings.menu_right_space_1 }}"></div>
+      <a href="/pages/collections">COLLECTIONS</a>
     {% for link in linklists.main-menu.links -%}
-        <a href="{{ link.url }}">
+        <a class="pagespecial-open" data-link="{{ link.url }}">
             {{ link.title | upcase }}
         </a>
     {%- endfor %}
@@ -41,6 +42,10 @@
     <div class="cart-content" id="sidebar-cart">
       {% render 'cart' %}
     </div>
+</div>
+
+<div class="pagespecial">
+
 </div>
 
 <style>

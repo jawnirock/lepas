@@ -11,6 +11,23 @@ $(document).ready(function () {
     return $(window).scrollTop() + $(window).height() >= $(document).height();
   }
 
+  $('.pagespecial-open').on('click', function(e) {
+    e.preventDefault();
+    
+    // Get the href of the clicked menu item
+    var pageUrl = $(this).data('link');
+    console.log(pageUrl);
+
+    // Load the content of the selected page into the content container
+    $('.pagespecial').load(pageUrl + ' #content', function(response, status, xhr) {
+      if (status == "error") {
+        console.log("Error loading content: " + xhr.status + " " + xhr.statusText);
+      } else {
+        // Add a class to indicate that the content is now open
+        $('.pagespecial').addClass('open');
+      }
+    });
+  });
 
   $('.product-images img').click(function(){
     let ref = $(this).attr('src')
@@ -235,6 +252,10 @@ $(document).ready(function () {
       visibleProducts += productsPerPage;
     }
   });
+
+
+
+
 });
 
 $(document).ready(function () {

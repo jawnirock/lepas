@@ -533,3 +533,65 @@ body {
     }
 
 }
+
+.pagespecial {
+    position: absolute;
+    top: 0px;
+    left: 0;
+    width: 100%;
+    background: white;
+    border-bottom: 1px solid black;
+    padding: 130px 0 50px 0;
+    transform: translateY(-100%);
+    &.open {
+        transform: translateY(0);
+        transition: 0.4s linear;
+    }
+    &-open {
+        cursor: pointer;
+    }
+}
+
+.footer {
+    padding: 50px 0 60px 40px;
+    border-top: 1px solid black;
+    @media only screen and (max-width: 768px) {
+        padding: 20px 20px 40px 20px;
+    }
+    &-wrap {
+        width: 60vw;
+        display: flex;
+        justify-content: space-between;
+        @media only screen and (max-width: 768px) {
+            width: 100%;
+        }
+    }
+    &-list {
+        a {
+            display: block;
+            color: black;
+            &:hover, &:active {
+                font-weight: 700;
+                text-decoration: none;
+            }
+        }
+    }
+    &-newsletter {
+        input {
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 400;
+            border: 0;
+            border-bottom: 1px solid black;
+            background-repeat: no-repeat;
+            background-position: right center;
+            background-color: transparent;
+            padding: 5px 0;
+            background-size: 15px;
+            width: 22vw;
+            &:hover, &:focus {
+                outline: none;
+            }
+        }        
+    }
+}

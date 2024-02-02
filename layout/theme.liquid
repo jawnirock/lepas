@@ -6,9 +6,34 @@
     </head>
     <body>
         <div class="container-main">
-            {% render 'header' %}
-                {{ content_for_layout }}
-            </div>
+        {% render 'header' %}
+            {{ content_for_layout }}
+            <footer class="footer">
+                <div class="footer-wrap">
+                    <div class="footer-list">
+                        {% for link in linklists.footer.links -%}
+                            <a class="pagespecial-open" data-link="{{ link.url }}">
+                                {{ link.title | upcase }}
+                            </a>
+                        {%- endfor %}
+                    </div>
+                    <div class="footer-list">
+                        {% for link in linklists.footer-2.links -%}
+                            <a class="pagespecial-open" data-link="{{ link.url }}">
+                                {{ link.title | upcase }}
+                            </a>
+                        {%- endfor %}
+                    </div>
+                    <div class="footer-list">
+                        <a href="">Facebook</a>
+                        <a href="">Instagram</a>
+                    </div>
+                    <div class="footer-newsletter">
+                        <input type="email" placeholder="SUBSCRIBE TO NEWSLETTER">
+                    </div>
+                </div>
+            </footer>
+        </div>
         <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
         {{ 'scripts.js' |  asset_url | script_tag }}
     </body>
