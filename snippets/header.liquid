@@ -1,40 +1,63 @@
 <header class="header">
-    <a href="/">
-      <h1>LE PAS</h1>
-    </a>      
-    <div class="header-search">
-      <form action="/search">
-        <input style="background-image: url({{ 'search.svg' |  asset_url }});" type="search" value="{{search.terms}}" name="q" />
-      </form>
+    <a class="header-logo" href="/">
+      <img src="{{ 'logo.svg' |  asset_url }}" alt="">
+    </a>
+    <div class="mobile">
+      <div style="background-image: url({{ 'search.svg' |  asset_url }});" class="header-search-open mobile"></div>
+      <div style="background-image: url({{ 'cart.svg' |  asset_url }});" class="header-cart mobile"></div>
+      <div style="background-image: url({{ 'menu.svg' |  asset_url }});" class="header-menu-toggle mobile"></div>
+      <div style="background-image: url({{ 'close.svg' |  asset_url }}); display: none;" class="header-menu-toggle mobile"></div>
     </div>
 </header>
 
 <div class="menu menu-left">
-    <strong>
-      <a href="/collections/store">ONLINE STORE</a>
-    </strong>
+    <a href="/collections/store">SHOP COLLECTION</a>
     <div style="height: {{ settings.menu_left_space_1 }}"></div>
-    <a href="/collections/store/new-in">NEW IN</a>
-    <div style="height: {{ settings.menu_left_space_2 }}"></div>
-    <a href="/collections/store">ALL</a>
-    {% for link in linklists.categories.links -%}
+    {% if request.path contains '/collections/store' %}
+      {% for link in linklists.categories.links -%}
         <a href="/collections/store/{{link.title  | downcase  | replace: ' ', '-'  }}">
-            {{ link.title | upcase }}
+          {{ link.title | upcase }}
         </a>
-    {%- endfor %}
+      {%- endfor %}
+      <div style="height: {{ settings.menu_left_space_2 }}"></div>
+    {% endif %}
+    <a href="/pages/images">IMAGES</a>
+    <a href="/pages/about">ABOUT</a>
+    <a href="/pages/stockists">STOCKISTS</a>
 </div>
 
 <div class="menu menu-right">
-    <a class="cart-button" href="#">CART</a>
+    <div class="header-search">
+      <form action="/search">
+      <input style="" type="search" placeholder="SEARCH" value="{{search.terms}}" name="q" />
+      </form>
+    </div>
+    <a class="cart-button" href="#">  BAG (<span id="cart-count">{{ cart.item_count }}</span>)
+    </a>
     <a href="/account">ACCOUNT</a>
-    <a class="pagespecial-open" data-link="/pages/client-service">CLIENT SERVICE</a>
-    <div style="height: {{ settings.menu_right_space_1 }}"></div>
-      <a href="/pages/collections">COLLECTIONS</a>
-    {% for link in linklists.main-menu.links -%}
-        <a class="pagespecial-open" data-link="{{ link.url }}">
-            {{ link.title | upcase }}
-        </a>
+</div>
+
+<div class="menu-mobile-search">
+  <form action="/search">
+    <input style="background-image: url({{ 'search.svg' |  asset_url }});"placeholder="SEARCH"  type="search" value="{{search.terms}}" name="q" />
+  </form>
+</div>
+<div class="menu-mobile">
+    <a class="cart-button" href="#">  BAG (<span id="cart-count">{{ cart.item_count }}</span>)
+    </a>
+    <a href="/account">ACCOUNT</a>
+    <div style="height: {{ settings.menu_left_space_1 }}"></div>
+    <a href="/collections/store">SHOP COLLECTION</a>
+    <div style="height: {{ settings.menu_left_space_1 }}"></div>
+    {% for link in linklists.categories.links -%}
+      <a href="/collections/store/{{link.title  | downcase  | replace: ' ', '-'  }}">
+        {{ link.title | upcase }}
+      </a>
     {%- endfor %}
+    <div style="height: {{ settings.menu_left_space_2 }}"></div>
+    <a href="/pages/images">IMAGES</a>
+    <a href="/pages/about">ABOUT</a>
+    <a href="/pages/stockists">STOCKISTS</a>
 </div>
 
 <div class="cart">

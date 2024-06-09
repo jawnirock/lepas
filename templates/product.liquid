@@ -1,33 +1,51 @@
 <div class="content-fit">
 
 <div class="product-page">
-    <div class="product-images">
+    <div class="desktop product-main">
         {% for image in product.images %}
             <img src="{{ image | image_url: height: 800 }}" alt="">
-        {% endfor %}        
+        {% endfor %}
     </div>
-    <div class="product-main">
+    <div class="mobile product-slider">        
         <img src="{{ product.featured_image | image_url: height: 800 }}" alt="">
+        {% for image in product.images %}
+            <img src="{{ image | image_url: height: 800 }}" alt="">
+        {% endfor %}   
     </div>
     <div class="product-info">
         <div class="product-info-title">
             {{ product.title }}<br>
             {{ product.price | money }}       
         </div>
+        {% assign colors = product.metafields.custom.other_colors.value %}    
+        <div class="product-color-desc">
+            {% for color in colors %}
+                {% if color.product_url == product.url %}
+                    {% if color.color_name %}
+                        <div>
+                            COLOR: {{ color.color_name }}
+                        </div>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        </div>      
         <div class="product-colors">
-            {% assign colors = product.metafields.custom.other_colors.value %}                
-            {% for color in colors %}                  
-                <a class="product-color"
-                    href="{{ color.product_url }}"
-                    style="background-color: {{ color.color }}; background-image: url({{ color.pattern  | image_url: height: 300 }});"
-                    tabindex="0"
-                ></a>
+            {% for color in colors %}
+                {% if color.product_url == product.url %}
+                    <a class="product-color active"
+                        style="background-color: {{ color.color }}; background-image: url({{ color.pattern  | image_url: height: 300 }});"
+                        tabindex="0"
+                    ></a>
+                {% else %}
+                    <a class="product-color"
+                        href="{{ color.product_url }}"
+                        style="background-color: {{ color.color }}; background-image: url({{ color.pattern  | image_url: height: 300 }});"
+                        tabindex="0"
+                    ></a>
+                {% endif %}
             {% endfor %}
         </div>
-        <div class="product-info-desc">
-            {{ product.description }}        
-        </div>
-        
+        <div class="product-form">
             <div class="custom-dropdown">
                 <div class="selected-variant" id="selectedVariant">
                     <span>
@@ -50,17 +68,46 @@
                     {% endfor %}
                 </div>
             </div>
-            <!-- Add to Cart Form -->
-            <form action="javascript:void(0);" method="post" id="addToCartForm">
-            {% for variant in product.variants %}
-                <input type="hidden" name="id" value="{{ variant.id }}">
-                <!-- Add other variant-specific input fields if needed -->
-            {% endfor %}
-            <input id="addToCartButton" type="submit" value="Add to Cart">
-            </form>
+            <div class="size-guide-open">
+                SIZE GUIDE
+            </div>
+        </div>
+        <!-- Add to Cart Form -->
+        <form action="javascript:void(0);" method="post" id="addToCartForm">
+        {% for variant in product.variants %}
+            <input type="hidden" name="id" value="{{ variant.id }}">
+            <!-- Add other variant-specific input fields if needed -->
+        {% endfor %}
+        <input id="addToCartButton" type="submit" value="Add to Cart">
+        </form>
+        <div class="product-info-desc">
+            {{ product.description }}       
+        </div>
+        <div class="toggle-more-info">
+            <span>More +</span>
+            <span style="display: none;">Less -</span>            
+        </div>
+        <div class="product-info-more"  style="display: none;">
+            {{ product.metafields.custom.more_info | metafield_tag  }}
+        </div>
 
-
-
+        <div class="size-guide">
+            {% if product.metafields.custom.size_guide %}
+                <!-- Include the content of men's footwear size conversions page -->
+                {% assign size_guide_page = pages['mens-footwear-size-conversions'] %}
+            {% else %}
+                <!-- Include the content of women's footwear size conversions page -->
+                {% assign size_guide_page = pages['womens-footwear-size-conversions'] %}
+            {% endif %}
+            <div class="size-guide-overlay"></div>
+            <div class="size-guide-content">
+                <h2>
+                    {{ size_guide_page.title }}
+                </h2>
+                {{ size_guide_page.content }}
+                <img src="{{ 'close.svg' |  asset_url }}" class="size-guide-close" alt="">
+            </div>
+        </div>
     </div>
 </div>
 

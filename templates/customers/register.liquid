@@ -1,88 +1,103 @@
-<div class="content-fit">
-  {% form 'create_customer' %}
-    {{ form.errors | default_errors }}
-
-    <div class="title">
-      <label for="title">Title</label>
-      <div>
+<div class="content-fit register">
+  <div class="mainform">
+    <br>
+    <br>
+    <strong>
+      CREATE AN ACCOUNT
+    </strong>
+    STORE YOU ADDRESSES AND MANAGE PERSONAL INFORMATION FOR FOR A FASTER CHECKOUT EXPERIENCE.
+    <br>
+    <br>
+    <br>
+    FIELDS MARKED * ARE MANDATORY
+    <br>
+    <br>
+    {% form 'create_customer' %}
+      {{ form.errors | default_errors }}
+  
+      <div class="title radios">
+        <label for="title">Title</label>
+        <div>
+          <label>
+            <input type="radio" name="customer[note][Title]" value="Miss" /> Miss, Mrs, Ms
+          </label>
+          <label>
+            <input type="radio" name="customer[note][Title]" value="Mr" /> Mr
+          </label>
+          <label>
+            <input type="radio" name="customer[note][Title]" value="Mx" /> Mx
+          </label>
+          <label>
+            <input type="radio" name="customer[note][Title]" value="RatherNotSay" /> I'd rather not say
+          </label>
+        </div>
+      </div>
+  
+      <div class="first-name">
+        <br><br>
+        <label for="first-name">First name *</label> <br>
+        <input type="text" name="customer[first_name]">
+      </div>
+  
+      <div class="last-name">
+        <label for="last-name">Last name *</label> <br>
+        <input type="text" name="customer[last_name]">
+      </div>
+  
+      <div class="birthday">
+        <label for="birthday">Birthdate</label> <br>
+        <input id="birthday" type="date" name="customer[note][Birthday]" />
+      </div>
+  
+      <div class="email">
+        <label for="email">Email *</label> <br>
+        <input type="email" name="customer[email]">
+      </div>
+  
+      <div class="password">
+        <label for="password">Password *</label> <br>
+        <input type="password" name="customer[password]">
+      </div>
+  
+      <div class="country-select">
+        <label for="country">Country *</label> <br>
+        <select id="country" name="customer[note][Country]">
+          {% assign all_countries = "Afghanistan,Albania,Algeria,Andorra,Angola,Antigua and Barbuda,Argentina,Armenia,Australia,Austria,Azerbaijan,Bahamas,Bahrain,Bangladesh,Barbados,Belarus,Belgium,Belize,Benin,Bhutan,Bolivia,Bosnia and Herzegovina,Botswana,Brazil,Brunei,Bulgaria,Burkina Faso,Burundi,Cabo Verde,Cambodia,Cameroon,Canada,Central African Republic,Chad,Chile,China,Colombia,Comoros,Congo (Congo-Brazzaville),Costa Rica,Cote d'Ivoire,Croatia,Cuba,Cyprus,Czechia (Czech Republic),Democratic Republic of the Congo,Denmark,Djibouti,Dominica,Dominican Republic,Ecuador,Egypt,El Salvador,Equatorial Guinea,Eritrea,Estonia,Eswatini (fmr. 'Swaziland'),Ethiopia,Fiji,Finland,France,Gabon,Gambia,Georgia,Germany,Ghana,Greece,Grenada,Guatemala,Guinea,Guinea-Bissau,Guyana,Haiti,Holy See,Honduras,Hungary,Iceland,India,Indonesia,Iran,Iraq,Ireland,Israel,Italy,Jamaica,Japan,Jordan,Kazakhstan,Kenya,Kiribati,Kuwait,Kyrgyzstan,Laos,Latvia,Lebanon,Lesotho,Liberia,Libya,Liechtenstein,Lithuania,Luxembourg,Madagascar,Malawi,Malaysia,Maldives,Mali,Malta,Marshall Islands,Mauritania,Mauritius,Mexico,Micronesia,Moldova,Monaco,Mongolia,Montenegro,Morocco,Mozambique,Myanmar (formerly Burma),Namibia,Nauru,Nepal,Netherlands,New Zealand,Nicaragua,Niger,Nigeria,North Korea,North Macedonia (formerly Macedonia),Norway,Oman,Pakistan,Palau,Palestine State,Panama,Papua New Guinea,Paraguay,Peru,Philippines,Poland,Portugal,Qatar,Romania,Russia,Rwanda,Saint Kitts and Nevis,Saint Lucia,Saint Vincent and the Grenadines,Samoa,San Marino,Sao Tome and Principe,Saudi Arabia,Senegal,Serbia,Seychelles,Sierra Leone,Singapore,Slovakia,Slovenia,Solomon Islands,Somalia,South Africa,South Korea,South Sudan,Spain,Sri Lanka,Sudan,Suriname,Sweden,Switzerland,Syria,Tajikistan,Tanzania,Thailand,Timor-Leste,Togo,Tonga,Trinidad and Tobago,Tunisia,Turkey,Turkmenistan,Tuvalu,Uganda,Ukraine,United Arab Emirates,United Kingdom,United States of America,Uruguay,Uzbekistan,Vanuatu,Venezuela,Vietnam,Yemen,Zambia,Zimbabwe" | split: "," %}
+          
+          {% for country in all_countries %}
+            {% if country == "United Kingdom" %}
+              <option value="{{ country }}" selected>{{ country }}</option>
+            {% else %}
+              <option value="{{ country }}">{{ country }}</option>
+            {% endif %}
+          {% endfor %}
+        </select>
+      </div>
+  
+      <a href="">READ OUR PRIVACY POLICY IN FULL</a>
+  
+      <div class="privacy-checkboxes">
         <label>
-          <input type="radio" name="customer[note][Title]" value="Miss" /> Miss, Mrs, Ms
+          <input type="checkbox" name="privacy_policy" id="privacy_policy" required>
+          HAVE READ AND UNDERSTOOD THE PRIVACY POLICY AND I AGREE TO THE TERMS OF USE. PLEASE AGREE TO THE KERING SERVICE AND LEGAL PRIVACY POLICY TO CREATE AN ACCOUNT.
         </label>
+  
         <label>
-          <input type="radio" name="customer[note][Title]" value="Mr" /> Mr
+          <input type="checkbox" name="customer[note][Receive Updates]" id="receive_updates">
+          WOULD LIKE TO RECEIVE UPDATES ABOUT SAINT LAURENT NEW ACTIVITIES, EXCLUSIVE PRODUCTS, TAILORED SERVICES AND TO HAVE A PERSONALIZED CLIENT EXPERIENCE BASED ON MY INTERESTS.
         </label>
+  
         <label>
-          <input type="radio" name="customer[note][Title]" value="Mx" /> Mx
-        </label>
-        <label>
-          <input type="radio" name="customer[note][Title]" value="RatherNotSay" /> I'd rather not say
+          <input type="checkbox" name="confirm_age" id="confirm_age" required>
+          CONFIRM THAT I AM AT LEAST 18 YEARS OLD* <br>
+          PLEASE AGREE TO THE KERING SERVICE AND LEGAL PRIVACY POLICY TO CREATE AN ACCOUNT. 
         </label>
       </div>
-    </div>
-
-    <div class="first-name">
-      <label for="first-name">First name</label>
-      <input type="text" name="customer[first_name]">
-    </div>
-
-    <div class="last-name">
-      <label for="last-name">Last name</label>
-      <input type="text" name="customer[last_name]">
-    </div>
-
-    <div class="birthday">
-      <label for="birthday">Birthdate</label>
-      <input id="birthday" type="date" name="customer[note][Birthday]" />
-    </div>
-
-    <div class="email">
-      <label for="email">Email</label>
-      <input type="email" name="customer[email]">
-    </div>
-
-    <div class="password">
-      <label for="password">Password</label>
-      <input type="password" name="customer[password]">
-    </div>
-
-    <div class="country-select">
-      <label for="country">Country</label>
-      <select id="country" name="customer[note][Country]">
-        {% assign all_countries = "Afghanistan,Albania,Algeria,Andorra,Angola,Antigua and Barbuda,Argentina,Armenia,Australia,Austria,Azerbaijan,Bahamas,Bahrain,Bangladesh,Barbados,Belarus,Belgium,Belize,Benin,Bhutan,Bolivia,Bosnia and Herzegovina,Botswana,Brazil,Brunei,Bulgaria,Burkina Faso,Burundi,Cabo Verde,Cambodia,Cameroon,Canada,Central African Republic,Chad,Chile,China,Colombia,Comoros,Congo (Congo-Brazzaville),Costa Rica,Cote d'Ivoire,Croatia,Cuba,Cyprus,Czechia (Czech Republic),Democratic Republic of the Congo,Denmark,Djibouti,Dominica,Dominican Republic,Ecuador,Egypt,El Salvador,Equatorial Guinea,Eritrea,Estonia,Eswatini (fmr. 'Swaziland'),Ethiopia,Fiji,Finland,France,Gabon,Gambia,Georgia,Germany,Ghana,Greece,Grenada,Guatemala,Guinea,Guinea-Bissau,Guyana,Haiti,Holy See,Honduras,Hungary,Iceland,India,Indonesia,Iran,Iraq,Ireland,Israel,Italy,Jamaica,Japan,Jordan,Kazakhstan,Kenya,Kiribati,Kuwait,Kyrgyzstan,Laos,Latvia,Lebanon,Lesotho,Liberia,Libya,Liechtenstein,Lithuania,Luxembourg,Madagascar,Malawi,Malaysia,Maldives,Mali,Malta,Marshall Islands,Mauritania,Mauritius,Mexico,Micronesia,Moldova,Monaco,Mongolia,Montenegro,Morocco,Mozambique,Myanmar (formerly Burma),Namibia,Nauru,Nepal,Netherlands,New Zealand,Nicaragua,Niger,Nigeria,North Korea,North Macedonia (formerly Macedonia),Norway,Oman,Pakistan,Palau,Palestine State,Panama,Papua New Guinea,Paraguay,Peru,Philippines,Poland,Portugal,Qatar,Romania,Russia,Rwanda,Saint Kitts and Nevis,Saint Lucia,Saint Vincent and the Grenadines,Samoa,San Marino,Sao Tome and Principe,Saudi Arabia,Senegal,Serbia,Seychelles,Sierra Leone,Singapore,Slovakia,Slovenia,Solomon Islands,Somalia,South Africa,South Korea,South Sudan,Spain,Sri Lanka,Sudan,Suriname,Sweden,Switzerland,Syria,Tajikistan,Tanzania,Thailand,Timor-Leste,Togo,Tonga,Trinidad and Tobago,Tunisia,Turkey,Turkmenistan,Tuvalu,Uganda,Ukraine,United Arab Emirates,United Kingdom,United States of America,Uruguay,Uzbekistan,Vanuatu,Venezuela,Vietnam,Yemen,Zambia,Zimbabwe" | split: "," %}
-        
-        {% for country in all_countries %}
-          {% if country == "United Kingdom" %}
-            <option value="{{ country }}" selected>{{ country }}</option>
-          {% else %}
-            <option value="{{ country }}">{{ country }}</option>
-          {% endif %}
-        {% endfor %}
-      </select>
-    </div>
-
-    <a href="">READ OUR PRIVACY POLICY IN FULL</a>
-
-    <div class="privacy-checkboxes">
-      <label>
-        <input type="checkbox" name="privacy_policy" id="privacy_policy" required>
-        HAVE READ AND UNDERSTOOD THE PRIVACY POLICY AND I AGREE TO THE TERMS OF USE. PLEASE AGREE TO THE KERING SERVICE AND LEGAL PRIVACY POLICY TO CREATE AN ACCOUNT.
-      </label>
-
-      <label>
-        <input type="checkbox" name="customer[note][Receive Updates]" id="receive_updates">
-        WOULD LIKE TO RECEIVE UPDATES ABOUT SAINT LAURENT NEW ACTIVITIES, EXCLUSIVE PRODUCTS, TAILORED SERVICES AND TO HAVE A PERSONALIZED CLIENT EXPERIENCE BASED ON MY INTERESTS.
-      </label>
-
-      <label>
-        <input type="checkbox" name="confirm_age" id="confirm_age" required>
-        CONFIRM THAT I AM AT LEAST 18 YEARS OLD* <br>
-        PLEASE AGREE TO THE KERING SERVICE AND LEGAL PRIVACY POLICY TO CREATE AN ACCOUNT. 
-      </label>
-    </div>
-
-
-    <div class="submit">
-      <input id="submit_button" type="submit" value="Create" disabled>
-    </div>
-  {% endform %}
+  
+  
+      <div class="submit">
+        <input class="create" id="submit_button" type="submit" value="Create Account" disabled>
+      </div>
+    {% endform %}
+  </div>
 </div>

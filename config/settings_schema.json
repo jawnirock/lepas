@@ -6,7 +6,12 @@
                 "type": "image_picker",
                 "id": "homepage_img",
                 "label": "Homepage Background Image"
-            }
+            },
+            {
+                "type": "image_picker",
+                "id": "homepage_img_mobile",
+                "label": "Mobile Homepage Background Image"
+            }            
         ]
     },
     {

@@ -1,4 +1,6 @@
 <div class="home" style="background-image: url();">
     {%- assign img_url = settings.homepage_img | image_url: master -%}
-    <img src="{{img_url}}">
+    {%- assign img_url_mobile = settings.homepage_img_mobile | image_url: master -%}
+    <img class="home-desktop" src="{{img_url}}">
+    <img class="home-mobile" src="{{img_url_mobile}}">
 </div>

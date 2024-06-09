@@ -48,15 +48,65 @@ $(document).ready(function () {
       $('#addToCartButton').show();
   });
 
-  $('.cart-button, .continue-shopping, .cart-overlay').click(function(){
-    $('.cart').fadeToggle()();
+  $('.product-slider').slick({
+      dots: true,
+      arrows: false
+  });
+
+
+  $('.cart-button, .continue-shopping, .cart-overlay, .header-cart').click(function(){
+    $('.cart').fadeToggle();
   })
 
-  $('#addToCartButton').click(function () {
-      // Get form data
-      const formData = $('#addToCartForm').serialize();
+  $('.toggle-more-info').click(function() {
+    $(this).find('span').toggle();
+    $('.product-info-more').toggle();
+  })
 
-      // Use Shopify's AJAX API to add the variant to the cart
+  $('.size-guide-open').click(function(){
+    $('.size-guide').show();
+  })
+
+  $('.size-guide-close, .size-guide-overlay').click(function(){
+    $('.size-guide').hide();
+  })
+
+  $('.header-menu-toggle').click(function(){
+    $('.header-cart, .header-search-open').toggle();
+    $('.header-menu-toggle').toggle();
+    if ($('.menu-mobile-search').is(':visible')) {
+      // The div is visible
+      $('.menu-mobile').hide();
+    } else {
+      // The div is not visible
+      $('.menu-mobile').show();
+    }
+    $('.menu-mobile-search').toggle();
+  })  
+
+  $('.header-search-open').click(function(){
+    $('.header-menu-toggle').toggle();    
+    $('.header-cart, .header-search-open').toggle();
+    $('.menu-mobile-search').toggle();
+  })  
+
+  // Function to update the cart item count
+  function updateCartItemCount() {
+    $.ajax({
+      type: 'GET',
+      url: '/cart.js',
+      dataType: 'json',
+      success: function(cart) {
+        $('#cart-count').text(cart.item_count);
+      }
+    });
+  }
+
+  $('#addToCartButton').click(function () {
+    // Get form data
+    const formData = $('#addToCartForm').serialize();
+
+    // Use Shopify's AJAX API to add the variant to the cart
     $.ajax({
       type: 'POST',
       url: '/cart/add.js',
@@ -75,12 +125,15 @@ $(document).ready(function () {
             // Update the sidebar cart with the new content
             $('#sidebar-cart').html(extractedContent);
             $('.cart').fadeIn();
+            // Update cart item count
+            updateCartItemCount();
             // Optionally, you can add animations or other UI updates here
           }
         });
       }
     });
   });
+
   $('.quantity-button').click(function () {
     // Get the variant ID and action from the data attributes
     const variantId = $(this).data('variant-id');
@@ -115,31 +168,41 @@ $(document).ready(function () {
             // Update the quantity display
             const updatedItem = updatedCart.items.find(item => item.id === variantId);
             $(`.quantity-display[data-variant-id="${variantId}"]`).text(updatedItem.quantity);
+            // Update cart item count
+            updateCartItemCount();
           }
         });
       }
     });
   });
-  // Click event for remove buttons
-  $('.remove-button').click(function () {
-    const variantId = $(this).data('variant-id');
-    // Use Shopify's AJAX API to update the cart
-    $.ajax({
-      type: 'POST',
-      url: '/cart/update.js',
-      data: {
-        updates: {
-          [variantId]: 0, // Set quantity to 0 to remove the item
-        },
+
+// Click event for remove buttons
+$('.remove-button').click(function () {
+  const variantId = $(this).data('variant-id');
+  // Use Shopify's AJAX API to update the cart
+  $.ajax({
+    type: 'POST',
+    url: '/cart/update.js',
+    data: {
+      updates: {
+        [variantId]: 0, // Set quantity to 0 to remove the item
       },
-      dataType: 'json',
-      success: function (updatedCart) {
-        // Remove the item's HTML from the cart container
-        $(`.cart-item[data-variant-id="${variantId}"]`).remove();
-      }
-    });
+    },
+    dataType: 'json',
+    success: function (updatedCart) {
+      // Remove the item's HTML from the cart container
+      $(`.cart-item[data-variant-id="${variantId}"]`).remove();
+      // Update cart item count
+      updateCartItemCount();
+    }
   });
-    // Load more products when reaching the bottom
+});
+
+// Initial update of the cart item count on page load
+$(document).ready(function() {
+  updateCartItemCount();
+});
+
   
   function updateDisplayedContent(element) {
     let title = element.data('title');
@@ -237,6 +300,8 @@ $(document).ready(function () {
       }
     });
   }
+
+    // Load more products when reaching the bottom
 
   $(window).scroll(function () {
     if (isBottom()) {

@@ -1,4 +1,6 @@
 <div class="content-fit login mainform">
+    <br>
+    <br>
     <strong>LOG IN</strong>
     {% form 'customer_login' %}
       {{ form.errors | default_errors }}
@@ -17,7 +19,24 @@
         <input type="submit" value="ENTER">
       </div>
     {% endform %}
+    {% comment %} <button class="recover-button">
+      FORGOT PASSWORD?
+    </button> {% endcomment %}
     <a href="/account/register">Create an account</a>
     <p>STORE YOUR ADDRESSES AND MANAGE PERSONAL INFORMATION FOR A FASTER CHECKOUT EXPERIENCE</p>
   {% comment %} <p><a href="/account/reset_password">Forgot your password? Reset it here.</a></p> {% endcomment %}
-</div>
+  {% comment %} 
+    {% form 'recover_customer_password' %}
+      {{ form.errors | default_errors }}
+
+      <div class="email">
+        <label for="email">Email</label>
+        <input type="email" name="email">
+      </div>
+
+      <div class="submit">
+        <input type="submit" value="Submit">
+      </div>
+    {% endform %} {% endcomment %}
+
+  </div>
