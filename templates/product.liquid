@@ -81,6 +81,9 @@
         <input id="addToCartButton" type="submit" value="Add to Cart">
         </form>
         <div class="product-info-desc">
+            {% if product.metafields.custom.pre_order %}                
+                {{ product.metafields.custom.pre_order | metafield_tag  }} 
+            {% endif %}
             {{ product.description }}       
         </div>
         <div class="toggle-more-info">

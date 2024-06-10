@@ -1,10 +1,65 @@
-<div id="cart-container">
-    <div class="cart-title">YOUR CART</div>
-    {% for item in cart.items %}
-        <div>
-            {{ item.title }} ({{ item.quantity }})
-        </div>    
-    {% endfor %}
+<div id="cart-container" class="cart-page content-fit">
+    <div class="cart-items">
+        <div class="cart-items-product">
+            <h4>Products</h4>
+            {% for item in cart.items %}
+                <div class="cart-item" data-variant-id="{{ item.variant.id }}">
+                    <div>
+                        <img src="{{ item.image | image_url: height: 800 }}" alt="">
+                    </div>
+                    <div>
+                        {{ item.product.title }} <br>
+                        {{ item.final_price | money }} <br><br>
+                        SIZE: {{ item.variant.title }} <br>
+                        {% assign colors = product.metafields.custom.other_colors.value %}    
+                        {% for color in colors %}
+                            {% if color.product_url == product.url %}
+                                {% if color.color_name %}
+                                    <div>
+                                        COLOR: {{ color.color_name }}<br>
+                                    </div>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}  
+                        {% if product.metafields.custom.pre_order %}                
+                            {{ product.metafields.custom.pre_order | metafield_tag  }}
+                        {% endif %}
+                    </div>
+                </div>    
+            {% endfor %}
+        </div>
+        <div class="cart-items-quantity">
+            <h4>quantity</h4>
+            {% for item in cart.items %}
+                <div class="cart-item cart-item-quantity" data-variant-id="{{ item.variant.id }}">
+                    <button class="quantity-button" data-variant-id="{{ item.id }}" data-action="decrement">-</button>
+                    <span class="quantity-display" data-variant-id="{{ item.id }}">{{ item.quantity }}</span>
+                    <button class="quantity-button" data-variant-id="{{ item.id }}" data-action="increment">+</button>
+                    <button class="remove-button" data-variant-id="{{ item.variant.id }}">Remove</button>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="cart-items-total">
+            <h4>total</h4>
+            {% for item in cart.items %}
+                <div class="cart-item cart-item-total" data-variant-id="{{ item.variant.id }}">
+                    {% assign item_total_price = item.quantity | times: item.final_price %}
+                    {{ item_total_price | money }}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="cart-footer">
+        <div class="cart-footer-top">
+            <strong>TOTAL: {{cart.total_price | money}}</strong> <br>
+            <span>
+                Shipping & taxes calculated at checkout
+            </span>
+        </div>
+        <div class="cart-footer-buttons">
+            <a class="checkout" href="/checkout">Proceed to checkout</a>
+        </div>
+    </div>
 </div>
 
 

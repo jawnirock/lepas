@@ -440,7 +440,7 @@ body {
                 width: 100%;
                 height: 100%;
                 z-index: 999;
-                background: rgba($color: #000000, $alpha: .2);
+                background: rgba($color: #000000, $alpha: .05);
             }
             &-content {
                 background: white;
@@ -543,7 +543,19 @@ body {
         // opacity: 0.8;
         z-index: 510;
         @media only screen and (max-width: 768px) {
-            display: none;
+            // display: none;
+        }
+    }
+    &-close {
+        position: fixed;
+        top: 15px;
+        right: 20px;
+        width: 22px;
+        height: 22px;
+        z-index: 9999;
+        cursor: pointer;
+        @media only screen and (max-width: 768px) {
+            right: 18px;
         }
     }
     &-content {
@@ -556,31 +568,43 @@ body {
         min-width: 350px;
         z-index: 512;
         @media only screen and (max-width: 768px) {
-            width: 100%;
-            height: calc(100svh - 56px);
-            margin-top: 54px;
+            width: calc(100% - 45px);
+            height: 100svh;
+            z-index: 9999;
+        }
+    }
+    button {
+        background: white;
+        border: 0px;
+        padding: 0;
+        font-weight: 500;
+        &.remove-button {
+            font-size: 10px;
+            text-transform: uppercase;
         }
     }
     &-title {
-        padding: 30px 0 0 40px;
-        font-weight: 700;
+        padding: 20px 0 0 20px;
         @media only screen and (max-width: 768px) {
-            padding: 15px 0 15px 10px;
+            padding: 15px 0 15px 18px;
         }
     }
     &-items {
-        padding: 30px;
-        height: calc(100% - 185px);
+        padding: 20px;
+        height: calc(100% - 163px);
         overflow: auto;
         @media only screen and (max-width: 768px) {
-            padding: 20px 10px;
+            padding: 20px 18px;
         }
+    }
+    .metafield-rich_text_field p{
+        margin: 0;
     }
     &-item {
         display: flex;
         align-items: flex-start;
         text-transform: uppercase;
-        margin-bottom: 40px;
+        margin-bottom: 50px;
         img {
             aspect-ratio: 9/12;
             object-fit: cover;
@@ -592,45 +616,130 @@ body {
             }
         }
     }
-    button {
-        background: white;
-        border: 0px;
-        &.remove-button {
-            font-size: 10px;
-            text-transform: uppercase;
-        }
-    }
     &-footer {
         position: absolute;
         width: 100%;
         bottom: 0;
         &-top {
-            border: solid black;
-            border-width: 1px 0;
-            padding: 10px 30px;    
+            padding: 15px 20px;
             display: flex;
-            justify-content: flex-end;        
+            justify-content: space-between;
+            align-items: center;     
         }
         &-buttons {
-            height: 100px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             div {
                 cursor: pointer;
-                margin: 0 10px;
+                // margin: 0 10px;
                 &:hover {
                     text-decoration: underline;
                 }
             }
-            a {
+            a.checkout {
                 background: black;
                 color: white;
                 padding: 10px;
-                margin: 0 10px;
+                margin: 0 20px;
+                width: 100%;
+                text-align: center;
+                width: calc(100% - 40px);
+                display: block;
                 &:hover {
                 }
             }
+            a.bag {
+                margin: 15px 0 25px 0;
+                width: 100%;
+                text-align: center;
+                display: block;
+                color: black;
+
+                &:hover {
+                }
+            }
+        }
+    }
+}
+
+.cart-page {
+    .cart {
+        &-items {
+            height: auto;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            justify-content: space-between;
+            &-product {
+                width: 70%;
+            }
+            &-quantity {
+                width: 20%;
+            }
+            &-total {
+                width: 10%;
+                text-align: right;
+            }
+            h4 {
+                font-weight: 500;
+                font-size: 10px;
+                padding-bottom: 15px;
+                border-bottom: 1px solid #EEEEEE;
+                width: 100%;
+            }
+        }
+        &-item {
+            min-height: 150px;
+            &-quantity {
+                display: block;
+                button, span {
+                    display: inline-block;
+                    margin-right: 15px;
+                    vertical-align: middle;
+                    &.quantity-button {
+                        font-size: 18px;
+                        font-weight: 300;
+                    }
+                    &.remove-button {
+                        display: block;
+                        margin-bottom: 20px;
+                    }
+                }
+            }
+            &-total {
+                text-align: right;
+                display: block;
+            }
+        }
+        &-footer {
+            position: static;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: center;
+            margin-bottom: 50px;
+            &>div {
+                display: block;
+                width: 100%;
+                max-width: 255px;
+                text-align: right;
+                padding: 10px 0;
+                span {
+                    color: #A8A8A8;
+                }
+                a.checkout {
+                    width: 100%;
+                    margin: 0;
+                }
+            }
+        }
+    }
+    button {
+        background: white;
+        border: 0px;
+        padding: 0;
+        font-weight: 500;
+        &.remove-button {
+            font-size: 10px;
+            text-transform: uppercase;
         }
     }
 }

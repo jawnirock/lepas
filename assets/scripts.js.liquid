@@ -54,7 +54,7 @@ $(document).ready(function () {
   });
 
 
-  $('.cart-button, .continue-shopping, .cart-overlay, .header-cart').click(function(){
+  $('.cart-button, .cart-close, .cart-overlay, .header-cart').click(function(){
     $('.cart').fadeToggle();
   })
 
@@ -90,91 +90,119 @@ $(document).ready(function () {
     $('.menu-mobile-search').toggle();
   })  
 
-  // Function to update the cart item count
-  function updateCartItemCount() {
-    $.ajax({
-      type: 'GET',
-      url: '/cart.js',
-      dataType: 'json',
-      success: function(cart) {
-        $('#cart-count').text(cart.item_count);
-      }
+// Function to format prices as money using Shopify's formatMoney function if available
+function formatMoney(amount) {
+  if (typeof Shopify !== 'undefined' && Shopify.formatMoney) {
+    return Shopify.formatMoney(amount, Shopify.money_format);
+  } else {
+    // Fallback formatting if Shopify.formatMoney is not available
+    return (amount / 100).toLocaleString(undefined, {
+      style: 'currency',
+      currency: Shopify.currency.active // Assuming Shopify.currency.active holds the active currency code
     });
   }
+}
 
-  $('#addToCartButton').click(function () {
-    // Get form data
-    const formData = $('#addToCartForm').serialize();
-
-    // Use Shopify's AJAX API to add the variant to the cart
-    $.ajax({
-      type: 'POST',
-      url: '/cart/add.js',
-      data: formData,
-      dataType: 'json',
-      success: function (response) {
-        console.log('Item added to cart:', response);
-
-        // Fetch the updated cart content using Shopify's AJAX API
-        $.ajax({
-          type: 'GET',
-          url: '/cart',
-          dataType: 'html',
-          success: function (cartContent) {
-            const extractedContent = $(cartContent).find('#cart-container').html();
-            // Update the sidebar cart with the new content
-            $('#sidebar-cart').html(extractedContent);
-            $('.cart').fadeIn();
-            // Update cart item count
-            updateCartItemCount();
-            // Optionally, you can add animations or other UI updates here
-          }
-        });
-      }
-    });
+// Function to update the cart item count
+function updateCartItemCount() {
+  $.ajax({
+    type: 'GET',
+    url: '/cart.js',
+    dataType: 'json',
+    success: function(cart) {
+      $('#cart-count').text(cart.item_count);
+      updateCartTotals(cart);
+    }
   });
+}
 
-  $('.quantity-button').click(function () {
-    // Get the variant ID and action from the data attributes
-    const variantId = $(this).data('variant-id');
-    const action = $(this).data('action');
-    
-    // Determine the quantity adjustment based on the action
-    const quantityAdjustment = action === 'increment' ? 1 : -1;
+// Function to update the individual item total
+function updateItemTotal(variantId, quantity, price) {
+  var itemTotalPrice = quantity * price;
+  $(`.cart-item-total[data-variant-id="${variantId}"]`).text(formatMoney(itemTotalPrice)); // Assuming prices are in cents
+}
 
-    // Use Shopify's AJAX API to get the current cart state
-    $.ajax({
-      type: 'GET',
-      url: '/cart.js',
-      dataType: 'json',
-      success: function (cart) {
-        // Find the current quantity of the item
-        const currentItem = cart.items.find(item => item.id === variantId);
+// Function to update the cart totals
+function updateCartTotals(cart) {
+  const total = formatMoney(cart.total_price); // Assuming prices are in cents
+  $('.cart-footer-top strong').text(`TOTAL: ${total}`);
+  $('.cart-footer-top span:last-child').text(total);
+}
 
-        // Calculate the new quantity
-        const newQuantity = currentItem.quantity + quantityAdjustment;
+$('#addToCartButton').click(function () {
+  // Get form data
+  const formData = $('#addToCartForm').serialize();
 
-        // Use Shopify's AJAX API to update the cart
-        $.ajax({
-          type: 'POST',
-          url: '/cart/update.js',
-          data: {
-            updates: {
-              [variantId]: newQuantity,
-            },
+  // Use Shopify's AJAX API to add the variant to the cart
+  $.ajax({
+    type: 'POST',
+    url: '/cart/add.js',
+    data: formData,
+    dataType: 'json',
+    success: function (response) {
+      console.log('Item added to cart:', response);
+
+      // Fetch the updated cart content using Shopify's AJAX API
+      $.ajax({
+        type: 'GET',
+        url: '/cart',
+        dataType: 'html',
+        success: function (cartContent) {
+          const extractedContent = $(cartContent).find('#cart-container').html();
+          // Update the sidebar cart with the new content
+          $('#sidebar-cart').html(extractedContent);
+          $('.cart').fadeIn();
+          // Update cart item count
+          updateCartItemCount();
+        }
+      });
+    }
+  });
+});
+
+$('.quantity-button').click(function () {
+  // Get the variant ID and action from the data attributes
+  const variantId = $(this).data('variant-id');
+  const action = $(this).data('action');
+  
+  // Determine the quantity adjustment based on the action
+  const quantityAdjustment = action === 'increment' ? 1 : -1;
+
+  // Use Shopify's AJAX API to get the current cart state
+  $.ajax({
+    type: 'GET',
+    url: '/cart.js',
+    dataType: 'json',
+    success: function (cart) {
+      // Find the current quantity of the item
+      const currentItem = cart.items.find(item => item.id === variantId);
+
+      // Calculate the new quantity
+      const newQuantity = currentItem.quantity + quantityAdjustment;
+
+      // Use Shopify's AJAX API to update the cart
+      $.ajax({
+        type: 'POST',
+        url: '/cart/update.js',
+        data: {
+          updates: {
+            [variantId]: newQuantity,
           },
-          dataType: 'json',
-          success: function (updatedCart) {
-            // Update the quantity display
-            const updatedItem = updatedCart.items.find(item => item.id === variantId);
-            $(`.quantity-display[data-variant-id="${variantId}"]`).text(updatedItem.quantity);
-            // Update cart item count
-            updateCartItemCount();
-          }
-        });
-      }
-    });
+        },
+        dataType: 'json',
+        success: function (updatedCart) {
+          // Update the quantity display
+          const updatedItem = updatedCart.items.find(item => item.id === variantId);
+          $(`.quantity-display[data-variant-id="${variantId}"]`).text(updatedItem.quantity);
+          // Update cart item count
+          updateCartItemCount();
+          // Update the individual item total
+          updateItemTotal(variantId, updatedItem.quantity, updatedItem.final_price);
+        }
+      });
+    }
   });
+});
 
 // Click event for remove buttons
 $('.remove-button').click(function () {
