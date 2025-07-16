@@ -1,20 +1,6 @@
 <div class="collections">
 
   <div class="content-fit">
-    
-        {% comment %} {% assign excludedCollectionTitle = "Store" %}
-        
-        {% for collection in collections %}
-          {% unless collection.title == excludedCollectionTitle %}
-            <div class="image-container">
-              {% for product in collection.products %}
-                <div data-link="{{ product.url }}" data-title="{{ product.title }}" data-price="{{ product.price | money_with_currency }} " data-image="{{ product.metafields.custom.collection_img | image_url: height: 900 }}">
-                    <img src="{{ product.metafields.custom.collection_img | image_url: height: 900 }}" alt="">
-                </div>
-              {% endfor %}
-            </div>
-          {% endunless %}
-        {% endfor %} {% endcomment %}
   <div class="image-container">
     {% assign array_images = page.metafields.custom.images.value %}
     {% if array_images %}

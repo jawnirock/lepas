@@ -1,15 +1,1 @@
-{% comment %} <div class="home" style="background-image: url();">
-    {%- assign img_url = settings.homepage_img | image_url: master -%}
-    {%- assign img_url_mobile = settings.homepage_img_mobile | image_url: master -%}
-    <img class="home-desktop" src="{{img_url}}">
-    <img class="home-mobile" src="{{img_url_mobile}}">
-</div> {% endcomment %}
-<div class="coming">
-  <div class="content-fit">
-    {%- assign img_url = settings.homepage_img | image_url: master -%}
-    {%- assign img_url_mobile = settings.homepage_img_mobile | image_url: master -%}
-    <img class="home-desktop" src="{{img_url}}">
-    <img class="home-mobile" src="{{img_url_mobile}}">
-    <a href="/collections/view-all">SHOP</a>
-  </div>
-</div>
+{% section 'home' %}

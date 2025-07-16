@@ -36,7 +36,21 @@
     {% endif %}        
 
     <a href="/pages/about">ABOUT</a>
-    <a href="/pages/images">IMAGES</a>
+    {% if template.suffix == 'collections' %}
+      <a href="#" class="shop-toggler">COLLECTIONS</a>
+        <div class="shop-toggled">
+          <div style="height: {{ settings.menu_left_space_1 }}"></div>    
+          {% for link in linklists.image-collections.links -%}
+            <a href="{{link.url}}">
+              {{ link.title | upcase }}
+            </a>
+          {%- endfor %}
+          <div style="height: {{ settings.menu_left_space_1 }}"></div>    
+        </div>
+    {% else %}
+    <a href="/pages/images">COLLECTIONS</a>
+    {% endif %}        
+
     <a href="/pages/stockists">STOCKISTS</a>
 </div>
 
@@ -76,7 +90,20 @@
       <a href="/collections/view-all" class="shop-toggler">SHOP</a>        
       <div style="height: {{ settings.menu_left_space_1 }}"></div>
     {% endif %}  
-    <a href="/pages/images">IMAGES</a>
+    {% if template.suffix == 'collections' %}
+      <a href="#" class="shop-toggler">COLLECTIONS</a>
+        <div class="shop-toggled">
+          <div style="height: {{ settings.menu_left_space_1 }}"></div>    
+          {% for link in linklists.image-collections.links -%}
+            <a href="{{link.url}}">
+              {{ link.title | upcase }}
+            </a>
+          {%- endfor %}
+          <div style="height: {{ settings.menu_left_space_1 }}"></div>    
+        </div>
+    {% else %}
+    <a href="/pages/images">COLLECTIONS</a>
+    {% endif %}      
     <a href="/pages/about">ABOUT</a>
     <a href="/pages/stockists">STOCKISTS</a>
 </div>
