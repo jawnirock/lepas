@@ -1,14 +1,15 @@
 <div class="content-fit login mainform">
-    <br>
-    <br>
-    <strong>LOG IN</strong>
+    <div class="login-intro">
+      <strong>LOG IN</strong>
+      Please enter your e-mail and password
+    </div>
     {% form 'customer_login' %}
       {{ form.errors | default_errors }}
 
     
     
       <div class="email">
-        <input type="email" name="customer[email]" placeholder="EMAIL ADDRESS">
+        <input type="email" name="customer[email]" placeholder="YOUR EMAIL ADDRESS">
       </div>
     
       <div class="password">
@@ -16,14 +17,17 @@
       </div>
     
       <div class="submit">
-        <input type="submit" value="ENTER">
+        <input type="submit" value="LOGIN">
       </div>
+
+      <div class="login-create">
+        Don't have an account?  <a href="/account/register">Create one</a>
+      </div>
+
     {% endform %}
     {% comment %} <button class="recover-button">
       FORGOT PASSWORD?
     </button> {% endcomment %}
-    <a href="/account/register">Create an account</a>
-    <p>STORE YOUR ADDRESSES AND MANAGE PERSONAL INFORMATION FOR A FASTER CHECKOUT EXPERIENCE</p>
   {% comment %} <p><a href="/account/reset_password">Forgot your password? Reset it here.</a></p> {% endcomment %}
   {% comment %} 
     {% form 'recover_customer_password' %}

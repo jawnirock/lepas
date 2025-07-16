@@ -1,15 +1,9 @@
+$(window).on('load', function() {
+    $('body').css('opacity', '0').animate({ opacity: 1 }, 1000); // Adjust 1000 for fade duration in milliseconds
+});
+
 $(document).ready(function () {
-  const products = $('.product');
-  const productsPerPage = 12;
-  let visibleProducts = productsPerPage;
-
-  // Initially hide all products beyond the first 3
-  products.slice(productsPerPage).hide();
-
-  // Function to check if the user has scrolled to the bottom
-  function isBottom() {
-    return $(window).scrollTop() + $(window).height() >= $(document).height();
-  }
+  
 
   $('.pagespecial-open').on('click', function(e) {
     e.preventDefault();
@@ -39,39 +33,70 @@ $(document).ready(function () {
     $('.dropdown-options').toggle();
     $('.selected-variant img').toggleClass('reverse');
   })
+  
+  $(document).click(function(event) {
+    if (!$(event.target).closest('.custom-dropdown').length) {
+      $('.dropdown-options').hide();
+      $('.selected-variant img').removeClass('reverse');
+    }
+  });
 
   $('.dropdown-option.stock').on('click', function () {
       const variantId = $(this).data('variant-id');
       const variantTitle = $(this).text();
       $('#addToCartForm input[name="id"]').val(variantId);
       $('#selectedVariant span').text(variantTitle);
-      $('#addToCartButton').show();
+      $('#addToCartButton').show().prop("disabled", false);
+      $('.klaviyo-bis-trigger').removeClass('on').hide().attr('data-variant-id', variantId);
   });
 
+  $('.dropdown-option.no-stock').on('click', function () {
+      const variantId = $(this).data('variant-id');
+      const variantTitle = $(this).text();
+      $('#selectedVariant span').text(variantTitle);
+      $('#addToCartButton').hide();
+      $('.klaviyo-bis-trigger').addClass('on').show().attr('data-variant-id', variantId);
+      console.log(variantId)
+  });
+  
   $('.product-slider').slick({
       dots: true,
       arrows: false
   });
 
+  $('.product-images').slick({
+    dots: true,
+    prevArrow: '<button type="button" class="slick-prev"><</button>',
+    nextArrow: '<button type="button" class="slick-next">></button>'
+  });
 
   $('.cart-button, .cart-close, .cart-overlay, .header-cart').click(function(){
     $('.cart').fadeToggle();
+    if ($('.menu-mobile').is(':visible')) {
+      $('.menu-mobile').hide();
+      $('.menu-mobile-search').hide();
+      $('.header-cart, .header-search-open').toggle();
+      $('.header-menu-toggle').toggle();
+    }
   })
 
   $('.toggle-more-info').click(function() {
-    $(this).find('span').toggle();
-    $('.product-info-more').toggle();
+    let num = $(this).data('info')
+    $('.product-info-more[data-info=' + num + ']').toggle();
   })
 
   $('.size-guide-open').click(function(){
     $('.size-guide').show();
+    $('.product-info').css('position', 'static')
   })
 
   $('.size-guide-close, .size-guide-overlay').click(function(){
     $('.size-guide').hide();
+    $('.product-info').css('position', 'sticky')
   })
 
   $('.header-menu-toggle').click(function(){
+    window.scrollTo(0, 0);
     $('.header-cart, .header-search-open').toggle();
     $('.header-menu-toggle').toggle();
     if ($('.menu-mobile-search').is(':visible')) {
@@ -89,6 +114,10 @@ $(document).ready(function () {
     $('.header-cart, .header-search-open').toggle();
     $('.menu-mobile-search').toggle();
   })  
+
+  $('.shop-toggler').click(function(){
+    $('.shop-toggled').toggle();
+  })
 
 // Function to format prices as money using Shopify's formatMoney function if available
 function formatMoney(amount) {
@@ -109,9 +138,11 @@ function updateCartItemCount() {
     type: 'GET',
     url: '/cart.js',
     dataType: 'json',
+    cache: false, // Disable caching
     success: function(cart) {
-      $('#cart-count').text(cart.item_count);
       updateCartTotals(cart);
+      $('#cart-count').text(cart.item_count);
+      $('#cart-count-top').text(cart.item_count);
     }
   });
 }
@@ -138,6 +169,7 @@ $('#addToCartButton').click(function () {
     type: 'POST',
     url: '/cart/add.js',
     data: formData,
+    cache: false, // Disable caching
     dataType: 'json',
     success: function (response) {
       console.log('Item added to cart:', response);
@@ -173,6 +205,7 @@ $('.quantity-button').click(function () {
     type: 'GET',
     url: '/cart.js',
     dataType: 'json',
+    cache: false, // Disable caching
     success: function (cart) {
       // Find the current quantity of the item
       const currentItem = cart.items.find(item => item.id === variantId);
@@ -205,9 +238,9 @@ $('.quantity-button').click(function () {
 });
 
 // Click event for remove buttons
-$('.remove-button').click(function () {
+$('#sidebar-cart').on('click', '.remove-button', function () {
   const variantId = $(this).data('variant-id');
-  // Use Shopify's AJAX API to update the cart
+
   $.ajax({
     type: 'POST',
     url: '/cart/update.js',
@@ -216,89 +249,31 @@ $('.remove-button').click(function () {
         [variantId]: 0, // Set quantity to 0 to remove the item
       },
     },
+    cache: false,
     dataType: 'json',
     success: function (updatedCart) {
-      // Remove the item's HTML from the cart container
       $(`.cart-item[data-variant-id="${variantId}"]`).remove();
-      // Update cart item count
       updateCartItemCount();
+    },
+    error: function (error) {
+      console.error('Error removing item:', error);
     }
   });
 });
+
 
 // Initial update of the cart item count on page load
 $(document).ready(function() {
   updateCartItemCount();
 });
 
+$('#newsletter-form').on('submit', function(event) {
+    if (!$('#privacy-policy').is(':checked')) {
+        alert('You must agree to the Privacy Policy to subscribe.');
+        event.preventDefault(); // Prevent form submission
+    }
+});
   
-  function updateDisplayedContent(element) {
-    let title = element.data('title');
-    let price = element.data('price');
-    let img = element.data('image');
-    let url = element.data('link');
-    let shape = element.data('shape');
-
-    // Update the displayed content
-    // $('.collections-show-img').attr('src', img)
-    $('.collections-show-desc').html(title + '<br>' + price);
-    $('.collections-show-link').attr('href', url);
-    $('.collections-show-img').attr('src', img)
-    $('.collections-show').removeClass('vertical horizontal')
-    $('.collections-show').addClass(shape)
-  }
-
-  $('.collections .image-container>div').click(function() {
-    // Remove the 'active' class from all elements and add it to the clicked element
-    $('.collections .image-container>div').removeClass('active');
-    $(this).addClass('active');
-
-    // Update the displayed content
-    updateDisplayedContent($(this));
-
-    // Show the collections-show element
-    $('.collections-show').show();
-    $('.collections .image-container').hide()
-  });
-
-  $('.collections-show-next').click(function() {
-    // Find the next div with the 'active' class
-    let next = $('.collections .image-container .active').next("div");
-
-    // If there is no next element, loop back to the first one
-    if (next.length === 0) {
-      next = $('.collections .image-container>div').first();
-    }
-
-    // Remove the 'active' class from all elements and add it to the next element
-    $('.collections .image-container>div').removeClass('active');
-    next.addClass('active');
-
-    // Update the displayed content
-    updateDisplayedContent(next);
-  });
-
-  $('.collections-show-prev').click(function() {
-    // Find the previous div with the 'active' class
-    let prev = $('.collections .image-container .active').prev("div");
-
-    // If there is no previous element, loop back to the last one
-    if (prev.length === 0) {
-      prev = $('.collections .image-container>div').last();
-    }
-
-    // Remove the 'active' class from all elements and add it to the previous element
-    $('.collections .image-container>div').removeClass('active');
-    prev.addClass('active');
-
-    // Update the displayed content
-    updateDisplayedContent(prev);
-  });
-
-  $('.collections-show-close').click(function(){
-    $('.collections-show').hide()
-    $('.collections .image-container').css('display', 'flex')
-  })
 
   $('#privacy_policy, #confirm_age').on('change', function() {
     updateSubmitButtonState();
@@ -329,69 +304,144 @@ $(document).ready(function() {
     });
   }
 
+      // Tab functionality
+    $('.tab-link').on('click', function(e) {
+        e.preventDefault();
+        
+        var target = $(this).attr('href');
+        var escapedTarget = CSS.escape(target);
+
+        $('.tab-link').removeClass('active');
+        $(this).addClass('active');
+        $('.account-navigation li a[href=' + escapedTarget  + ']').addClass('active')
+
+        $('.tab-content').removeClass('active');
+        $(target).addClass('active');
+    });
+
     // Load more products when reaching the bottom
 
   $(window).scroll(function () {
-    if (isBottom()) {
-      // Show the next 3 products
-      products.slice(visibleProducts, visibleProducts + productsPerPage).show();
 
-      // If there are no more products, detach the scroll event to prevent unnecessary checks
-      if (visibleProducts + productsPerPage >= products.length) {
-        $(window).off('scroll');
-      }
-
-      // Update the counter for visible products
-      visibleProducts += productsPerPage;
-    }
   });
 
-
-
-
 });
+
+
+$(document).ready(function() {
+  $('.image-container a').each(function() {
+    var a = $(this);
+    var img = $(this).find('img');
+
+    // Create a temporary image to determine the natural dimensions
+    var tempImg = new Image();
+    tempImg.src = img.attr('src');
+
+    tempImg.onload = function() {
+      if (tempImg.width > tempImg.height) {
+        a.addClass('landscape');
+      } else {
+        a.addClass('portrait');
+      }
+    };
+  });
+});
+
+
+//////// REcently viewed
 
 $(document).ready(function () {
-  function resizeImages($row) {
-    var containerWidth = $row.width();
-    var totalImageWidth = 0;
+  
+    // Check if we're on a product page
+    if ($('.product-page').length) {
+        // Extract data from the DOM
+        const currentProduct = {
+            url: window.location.href, // Current page URL
+            image: $('.product-main img').first().attr('src'), // First product image
+            title: $('.product-info-title').text().trim(), // Product title
+            price: $('.product-info-title').find('br').next().text().trim() // Product price after <br>
+        };
 
-    $row.find('img').each(function () {
-      totalImageWidth += $(this).outerWidth(true);
+        // Retrieve the existing recently viewed products from localStorage
+        let recentlyViewed = JSON.parse(localStorage.getItem('recentlyViewed')) || [];
+
+        // Check if the list is empty or contains only the currently viewed product
+        if (
+            recentlyViewed.length === 0 || 
+            (recentlyViewed.length === 1 && recentlyViewed[0].title === currentProduct.title)
+        ) {
+            $('.product-recently-viewed').hide();
+        } else {
+            $('.product-recently-viewed').show(); // Optional, in case it needs to be re-shown
+        }
+
+        // Check if the product is already in the list by title
+        if (!recentlyViewed.some(product => product.title === currentProduct.title)) {
+            recentlyViewed.unshift(currentProduct); // Add the new product at the start
+            recentlyViewed = recentlyViewed.slice(0, 5); // Limit to 5 products saved in localStorage
+            localStorage.setItem('recentlyViewed', JSON.stringify(recentlyViewed)); // Save back to localStorage
+        }
+
+    }
+
+
+    // Load "Recently Viewed" products into the section
+    const $recentlyViewedContainer = $('.product-recently-viewed-list');
+    if ($recentlyViewedContainer.length) {
+        let recentlyViewed = JSON.parse(localStorage.getItem('recentlyViewed')) || [];
+
+        recentlyViewed
+            .filter(product => product.url !== window.location.href) // Exclude the current product
+            .slice(0, 4) // Limit to 4 products displayed
+            .forEach(function (product) {
+                const productHTML = `
+                    <div class="product-related-item product-recently-viewed-item">
+                        <a href="${product.url}">
+                            <img src="${product.image}" alt="${product.title}">
+                            <p>${product.title}</p>
+                            <span>${product.price}</span>
+                        </a>
+                    </div>
+                `;
+                $recentlyViewedContainer.append(productHTML);
+            });
+    }  
+
+
+    // banner
+
+    var bannerSelector = '.banner'; // Your banner class selector
+
+    // Check if the banner has been hidden before
+    if (sessionStorage.getItem('bannerClosed') === 'true') {
+        $(bannerSelector).hide();
+    }
+
+    // Hide the banner and set session storage on "close" click
+    $('.banner-close').on('click', function () {
+        $(bannerSelector).fadeOut(); // Hide the banner with animation
+        sessionStorage.setItem('bannerClosed', 'true'); // Remember the banner is closed
     });
 
-    var scale = containerWidth / totalImageWidth;
-    var newHeight = $row.find('img').first().height() * scale;
 
-    $row.find('img').css('height', newHeight + 'px').css('opacity', 1);
+});
 
-    // Add class based on image orientation
-    $row.find('img').each(function () {
-      if ($(this).height() > $(this).width()) {
-        $(this).parent().attr('data-shape', 'vertical');
-      } else {
-        $(this).parent().attr('data-shape', 'horizontal');
+
+// CURRENCY
+
+const currencySelectors = document.querySelectorAll('#currency-select');
+
+if (currencySelectors.length > 0) {
+  currencySelectors.forEach(selector => {
+    selector.addEventListener('change', function() {
+      const selectedOption = this.options[this.selectedIndex];
+      const url = selectedOption.getAttribute('data-url');
+      if (url) {
+        window.location.href = url;
       }
     });
-  }
-
-  // Set initial height to a fixed value
-  $('.image-container img').css('height', '100px'); // Adjust the height as needed
-
-  // Handle window load event
-  $(window).on('load', function () {
-    $('.image-container').each(function () {
-      resizeImages($(this));
-    });
-
-    // Handle window resize event
-    $(window).resize(function () {
-      $('.image-container').each(function () {
-        resizeImages($(this));
-      });
-    });
-  });
-});
+  })
+}
 
 
 

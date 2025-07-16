@@ -1,9 +1,31 @@
-<html>
+<html lang="en">
     <head>
         {{ content_for_header }}
+
+        <title>
+            {{ page_title -}}
+            {%- if current_tags %} &ndash; tagged "{{ current_tags | join: ', ' }}"{% endif -%}
+            {%- if current_page != 1 %} &ndash; Page {{ current_page }}{% endif -%}
+            {%- unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless -%}
+        </title>
+
+        {% if page_description %}
+            <meta name="description" content="{{ page_description | escape }}" />
+        {% endif %}
+        {% if template == '404' %}
+            <meta name="robots" content="noindex, follow">
+        {% endif %}
+          
+        <link rel="canonical" href="{{ canonical_url }}" />
+
+        <link rel="apple-touch-icon" sizes="180x180" href="{{ 'apple-touch-icon.png' | asset_url }}">
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ 'favicon-32x32.png' | asset_url }}">
+        <link rel="icon" type="image/png" sizes="16x16" href="{{ 'favicon-16x16.png' | asset_url }}">
+        <link rel="icon" href="{{ 'favicon.ico' | asset_url }}" type="image/x-icon">
+        <link rel="manifest" href="/site.webmanifest">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.css" integrity="sha512-wR4oNhLBHf7smjy0K4oqzdWumd+r5/+6QO/vDda76MW5iug4PT7v86FoEkySIJft3XA0Ae6axhIvHrqwm793Nw==" crossorigin="anonymous" referrerpolicy="no-referrer" />        
-        {{ 'style.css' |  asset_url | stylesheet_tag }}        
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.css" integrity="sha512-wR4oNhLBHf7smjy0K4oqzdWumd+r5/+6QO/vDda76MW5iug4PT7v86FoEkySIJft3XA0Ae6axhIvHrqwm793Nw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        {{ 'style.css' |  asset_url | stylesheet_tag }}
         <meta name="viewport" content="width=device-width, initial-scale=1">
     </head>
     <body>
@@ -12,53 +34,196 @@
             {{ content_for_layout }}
             <footer class="footer">
                 <div class="footer-wrap desktop">
-                    <div class="footer-list">
-                        {% for link in linklists.footer.links -%}
-                            <a class="pagespecial-open" data-link="{{ link.url }}">
-                                {{ link.title | upcase }}
-                            </a>
-                        {%- endfor %}
-                    </div>
-                    <div class="footer-list">
-                        {% for link in linklists.footer-2.links -%}
-                            <a class="pagespecial-open" data-link="{{ link.url }}">
-                                {{ link.title | upcase }}
-                            </a>
-                        {%- endfor %}
-                    </div>
-                    <div class="footer-list social">
-                        <a href="">Facebook</a>
-                        <a href="">Instagram</a>
-                    </div>
                     <div class="footer-newsletter">
-                        <input type="email" placeholder="SUBSCRIBE TO NEWSLETTER">
+                        <form id="newsletter-form" action="/contact" method="post" accept-charset="UTF-8">
+                            <input type="hidden" name="form_type" value="customer">
+                            <input type="hidden" name="utf8" value="✓">
+                            <span>Subscribe to our Newsletter</span><br>
+                            <span class="enjoy">Enjoy 10% off your first order</span>
+                            <div style="display: flex;">
+                                <input type="email" id="email" name="contact[email]" placeholder="YOUR EMAIL ADDRESS" required>
+                                <button type="submit">></button>
+                            </div>
+                            <div class="newsletter-check">
+                                <input type="checkbox" id="privacy-policy" required>
+                                <label for="privacy-policy">I have read and understood the
+                                    <a target="_blank" href="/pages/legal-and-privacy">Privacy Policy</a>
+                                </label>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="footer-lists">
+                        <div class="footer-list social">
+                            <a href="/pages/about">About the brand</a>
+                            {% comment %} <a href="/pages/coming-soon">About the brand</a> {% endcomment %}
+                            <a target="_blank" href="https://www.instagram.com/judethebrand?igsh=MWw0YW1oN2Q1Y2kx">Instagram</a>
+                            <a href="/pages/contact">Contact us</a>
+                            <select id="currency-select" class="currency">
+                                <option value="Currency" disabled selected>Currency</option>
+                                <option value="EURO" data-url="https://thejude.com">EURO</option>
+                                <option value="USD" data-url="https://us.thejude.com">USD</option>
+                            </select>
+                        </div>
+                        <div class="footer-list">
+                            {% for link in linklists.footer.links -%}
+                               <a class="" href="{{ link.url }}">
+                               {% comment %} <a class="" href="/pages/coming-soon"> {% endcomment%}
+                                    {{ link.title | upcase }}
+                                </a>
+                            {%- endfor %}
+                        </div>
+                        <div class="footer-list">
+                            {% for link in linklists.footer-2.links -%}
+                               <a class="" href="{{ link.url }}">
+                               {% comment %} <a class="" href="/pages/coming-soon">{% endcomment %}
+                                    {{ link.title | upcase }}
+                                </a>
+                            {%- endfor %}
+                            <br>
+                            JUDE © 2024
+                        </div>
                     </div>
                 </div>
                 <div class="footer-wrap mobile">
-                    <div class="footer-list">
-                        {% for link in linklists.footer.links -%}
-                            <a class="" href="{{ link.url }}">
-                                {{ link.title | upcase }}
-                            </a>
-                        {%- endfor %}
-                        {% for link in linklists.footer-2.links -%}
-                            <a class="" href="{{ link.url }}">
-                                {{ link.title | upcase }}
-                            </a>
-                        {%- endfor %}
-                    </div>
-                    <div class="footer-list social">
-                        <a href="">Facebook</a>
-                        <a href="">Instagram</a>
-                    </div>
                     <div class="footer-newsletter">
-                        <input type="email" placeholder="SUBSCRIBE TO NEWSLETTER">
+                        <form id="newsletter-form" action="/contact" method="post" accept-charset="UTF-8">
+                            <input type="hidden" name="form_type" value="customer">
+                            <input type="hidden" name="utf8" value="✓">
+                            <span>Subscribe to our Newsletter</span><br>
+                            <span class="enjoy">Enjoy 10% off your first order</span>
+                            <div class="newsletter-email">
+                                <input type="email" id="email" name="contact[email]" placeholder="YOUR EMAIL ADDRESS" required>
+                                <button type="submit">></button>
+                            </div>
+                            <div class="newsletter-check">
+                                <input type="checkbox" id="privacy-policy" required>
+                                <label for="privacy-policy">I have read and understood the
+                                    <a target="_blank" href="/pages/legal-and-privacy">Privacy Policy</a>
+                                </label>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="footer-lists">
+                        <div class="footer-list">
+                           {% for link in linklists.footer.links -%}
+                               <a class="" href="{{ link.url }}">
+                               {% comment %} <a class="" href="/pages/coming-soon">{% endcomment %}
+                                   {{ link.title | upcase }}
+                               </a>
+                           {%- endfor %}
+                           {% for link in linklists.footer-2.links -%}
+                               <a class="" href="{{ link.url }}">
+                               {% comment %} <a class="" href="/pages/coming-soon">{% endcomment %}
+                                   {{ link.title | upcase }}
+                               </a>
+                           {%- endfor %}
+                           <br>
+                           JUDE © 2024
+                       </div>
+                       <div class="footer-list social">
+                            <a href="/pages/about">About the brand</a>
+                            {% comment %} <a href="/pages/coming-soon">About the brand</a> {% endcomment %}
+                            <a target="_blank" href="https://www.instagram.com/judethebrand?igsh=MWw0YW1oN2Q1Y2kx">Instagram</a>
+                            <a href="/pages/contact">Contact us</a>
+                            <select id="currency-select" class="currency">
+                                <option value="Currency" disabled selected>Currency</option>
+                                <option value="EURO" data-url disabled="https://thejude.com">EURO</option>
+                                <option value="USD" data-url="https://us.thejude.com">USD</option>
+                            </select>
+                       </div>
                     </div>
                 </div>
             </footer>
         </div>
         <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.js" integrity="sha512-HGOnQO9+SP1V92SrtZfjqxxtLmVzqZpjFFekvzZVWoiASSQgSr4cw9Kqd2+l8Llp4Gm0G8GIFJ4ddwZilcdb8A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script src="https://a.klaviyo.com/media/js/onsite/onsite.js"></script>
+        <script>
+            var klaviyo = klaviyo || [];
+            klaviyo.init({
+            account: "Y4um4d",
+            platform: "shopify"
+            });
+            klaviyo.enable("backinstock",{ 
+            trigger: {
+            product_page_text: "Join the waitlist",
+            product_page_class: "button",
+            product_page_text_align: "center",
+            product_page_margin: "0px",
+            replace_anchor: false
+            },
+            modal: {
+            headline: "{product_name}",
+            body_content: "Leave us your email and we will contact you once it is available again.",
+            email_field_label: "Email",
+            button_label: "Join the waitlist",
+            subscription_success_label: "Thank you! You will receive an email when this item is back in stock.",
+            footer_content: '',
+            additional_styles: `
+                @font-face {
+                    font-family: "Switzer Variable";
+                    src: url("https://thejude.com/cdn/shop/t/2/assets/switzer.woff");
+                    font-weight: normal;
+                    font-style: normal;
+                    font-display: swap;
+                }
+                .modal-title {
+                    font-size: 14px;
+                }
+                body, .btn-lg, button, .modal-content, .input-lg { 
+                    font-family: "Switzer Variable", sans-serif; 
+                    font-weight: 300 !important;
+                    text-transform: uppercase;
+                    font-size: 10px;
+                }
+                p {
+                 font-size: 10px;
+                }
+                 #container {
+                    border-radius: 0px;
+                    padding: 30px 12%;
+                    width: 45%;
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    margin-top: 0;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    height: 100%;
+                }
+
+                select#variants, #container .form-control.input-lg {
+                    border: 0px;
+                    border-bottom: 1px solid black;
+                    padding: 12px 0px;
+                    border-radius: 0px;
+                    box-shadow: none;
+                    height: auto;
+                }
+
+                @media only screen and (max-width: 768px) {
+                     #container {
+                     width: 100%;
+                     top: 60px;
+                    }
+                }
+            `,
+            drop_background_color: "#000",
+            background_color: "#fff",
+            text_color: "#222",
+            button_text_color: "#fff",
+            button_background_color: "#000000",
+            close_button_color: "#ccc",
+            error_background_color: "#fcd6d7",
+            error_text_color: "#C72E2F",
+            success_background_color: "#d3efcd",
+            success_text_color: "#1B9500"
+            }
+
+
+        });
+        </script>
         {{ 'scripts.js' |  asset_url | script_tag }}
     </body>
 </html>

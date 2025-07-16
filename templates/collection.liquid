@@ -1,25 +1,141 @@
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "ItemList",
+  "name": "{{ collection.title | escape }}",
+  "itemListElement": [
+    {% for product in collection.products %}
+      {
+        "@type": "ListItem",
+        "position": {{ forloop.index }},
+        "url": "{{ shop.url }}{{ product.url }}",
+        "item": {
+          "@type": "Product",
+          "name": "{{ product.title | escape }}",
+          "image": "{% if product.featured_image %}{{ product.featured_image | image_url: height: 400 }}{% endif %}",
+          "sku": "{{ product.sku }}",
+          "brand": {
+            "@type": "Brand",
+            "name": "{{ product.vendor }}"
+          },
+          "offers": {
+            "@type": "Offer",
+            "url": "{{ shop.url }}{{ product.url }}",
+            "priceCurrency": "{{ cart.currency.iso_code }}",
+            "price": "{{ product.price | money_without_currency }}",
+            "availability": "{% if product.available %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}",
+            "seller": {
+              "@type": "Organization",
+              "name": "{{ shop.name }}"
+            }
+          }
+        }
+      }{% unless forloop.last %},{% endunless %}
+    {% endfor %}
+  ]
+}
+</script>
+
 <div class="content-fit">
+    <h1 class="products-title" style="display: none;">{{ collection.title }}</h1>
     <div class="products">
-        {% for product in collection.products %}
-            <div class="product">
-                <a href="{{ product.url }}">
-                    <img src="{{ product.featured_image | image_url: height: 400 }}" alt="">
-                    <span>
-                        {{ product.title }}<br>
-                    </span>
-                    {% comment %} {{ product.price | money }}        {% endcomment %}
-                </a>
-                <div class="product-colors">
-                    {% assign colors = product.metafields.custom.other_colors.value %}                
-                    {% for color in colors %}                  
-                        <a class="product-color"
-                            href="{{ color.product_url }}"
-                            style="background-color: {{ color.color }}; background-image: url({{ color.pattern  | image_url: height: 300 }});"
-                            tabindex="0"
-                        ></a>
-                    {% endfor %}
+        {% paginate collection.products by 28 %}
+            {% for product in collection.products %}
+                <div class="product">
+                    <div class="product-images">
+                        {% for image in product.images %}
+                        <a href="{{ product.url }}">
+                            <img src="{{ image | image_url: height: 400 }}" alt="">
+                        </a>
+                        {% endfor %}
+                    </div>
+                    <a href="{{ product.url }}">
+                        <span>
+                            {{ product.title }}<br>
+                            {{ product.price | money }}       
+                        </span>
+                    </a>
+                    <div class="product-colors">
+                        {% assign colors = product.metafields.custom.other_colors.value %}                
+                        {% for color in colors %}                  
+                            <a class="product-color"
+                                href="{{ color.product_url }}"
+                                style="background-color: {{ color.color }}; background-image: url({{ color.pattern  | image_url: height: 300 }});"
+                                tabindex="0"
+                            ></a>
+                        {% endfor %}
+                    </div>
                 </div>
+            {% endfor %}
+
+            <!-- Pagination Links -->
+            <div class="pagination">
+                {% if paginate.previous %}
+                    <a href="{{ paginate.previous.url }}" class="prev">«</a>
+                {% endif %}
+
+                {% for part in paginate.parts %}
+                    {% if part.is_link %}
+                        <a href="{{ part.url }}">{{ part.title }}</a>
+                    {% else %}
+                        <span class="current">{{ part.title }}</span>
+                    {% endif %}
+                {% endfor %}
+
+                {% if paginate.next %}
+                    <a href="{{ paginate.next.url }}" class="next">»</a>
+                {% endif %}
             </div>
-        {% endfor %}
+        {% endpaginate %}
+    </div>
+    <div class="products products-mobile">
+        {% paginate collection.products by 20 %}
+            {% for product in collection.products %}
+                <div class="product">
+                    <div class="product-images">
+                        {% for image in product.images %}
+                        <a href="{{ product.url }}">
+                            <img src="{{ image | image_url: height: 400 }}" alt="">
+                        </a>
+                        {% endfor %}
+                    </div>
+                    <a href="{{ product.url }}">
+                        <span>
+                            {{ product.title }}<br>
+                            {{ product.price | money }}       
+                        </span>
+                    </a>
+                    <div class="product-colors">
+                        {% assign colors = product.metafields.custom.other_colors.value %}                
+                        {% for color in colors %}                  
+                            <a class="product-color"
+                                href="{{ color.product_url }}"
+                                style="background-color: {{ color.color }}; background-image: url({{ color.pattern  | image_url: height: 300 }});"
+                                tabindex="0"
+                            ></a>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+
+            <!-- Pagination Links -->
+            <div class="pagination">
+                {% if paginate.previous %}
+                    <a href="{{ paginate.previous.url }}" class="prev">«</a>
+                {% endif %}
+
+                {% for part in paginate.parts %}
+                    {% if part.is_link %}
+                        <a href="{{ part.url }}">{{ part.title }}</a>
+                    {% else %}
+                        <span class="current">{{ part.title }}</span>
+                    {% endif %}
+                {% endfor %}
+
+                {% if paginate.next %}
+                    <a href="{{ paginate.next.url }}" class="next">»</a>
+                {% endif %}
+            </div>
+        {% endpaginate %}
     </div>
 </div>

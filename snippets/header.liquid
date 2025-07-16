@@ -1,3 +1,11 @@
+{% if settings.banner_text != blank %}
+  <div class="banner" style="background-color: {{ settings.banner_bg_color }}; color: {{ settings.banner_text_color }};">
+      <div class="banner-text">{{ settings.banner_text }}</div>
+      <img class="banner-close" src="{{ 'close.svg' | asset_url }}" alt="">
+  </div>
+{% endif %}
+
+
 <header class="header">
     <a class="header-logo" href="/">
       <img src="{{ 'logo.svg' |  asset_url }}" alt="">
@@ -11,18 +19,24 @@
 </header>
 
 <div class="menu menu-left">
-    <a href="/collections/store">SHOP COLLECTION</a>
+  {% if request.path contains '/collections/' or request.path contains '/products/' %}
+    <a href="#" class="shop-toggler">SHOP</a>      
     <div style="height: {{ settings.menu_left_space_1 }}"></div>
-    {% if request.path contains '/collections/store' %}
+      <div class="shop-toggled">
       {% for link in linklists.categories.links -%}
-        <a href="/collections/store/{{link.title  | downcase  | replace: ' ', '-'  }}">
+        <a href="/collections/{{link.title  | downcase  | replace: ' ', '-'  }}">
           {{ link.title | upcase }}
         </a>
       {%- endfor %}
       <div style="height: {{ settings.menu_left_space_2 }}"></div>
-    {% endif %}
-    <a href="/pages/images">IMAGES</a>
+    </div>
+    {% else %}
+      <a href="/collections/view-all" class="shop-toggler">SHOP</a>        
+      <div style="height: {{ settings.menu_left_space_1 }}"></div>
+    {% endif %}        
+
     <a href="/pages/about">ABOUT</a>
+    <a href="/pages/images">IMAGES</a>
     <a href="/pages/stockists">STOCKISTS</a>
 </div>
 
@@ -47,14 +61,21 @@
     </a>
     <a href="/account">ACCOUNT</a>
     <div style="height: {{ settings.menu_left_space_1 }}"></div>
-    <a href="/collections/store">SHOP COLLECTION</a>
+    {% if request.path contains '/collections/' or request.path contains '/products/' %}
+    <a href="#" class="shop-toggler">SHOP</a>      
     <div style="height: {{ settings.menu_left_space_1 }}"></div>
-    {% for link in linklists.categories.links -%}
-      <a href="/collections/store/{{link.title  | downcase  | replace: ' ', '-'  }}">
-        {{ link.title | upcase }}
-      </a>
-    {%- endfor %}
-    <div style="height: {{ settings.menu_left_space_2 }}"></div>
+      <div class="shop-toggled">
+      {% for link in linklists.categories.links -%}
+        <a href="/collections/{{link.title  | downcase  | replace: ' ', '-'  }}">
+          {{ link.title | upcase }}
+        </a>
+      {%- endfor %}
+      <div style="height: {{ settings.menu_left_space_2 }}"></div>
+    </div>
+    {% else %}
+      <a href="/collections/view-all" class="shop-toggler">SHOP</a>        
+      <div style="height: {{ settings.menu_left_space_1 }}"></div>
+    {% endif %}  
     <a href="/pages/images">IMAGES</a>
     <a href="/pages/about">ABOUT</a>
     <a href="/pages/stockists">STOCKISTS</a>

@@ -1,66 +1,86 @@
 [
-    {
-        "name": "Homepage",
-        "settings": [
-            {
-                "type": "image_picker",
-                "id": "homepage_img",
-                "label": "Homepage Background Image"
-            },
-            {
-                "type": "image_picker",
-                "id": "homepage_img_mobile",
-                "label": "Mobile Homepage Background Image"
-            }            
-        ]
-    },
-    {
-        "name": "Menus",
-        "settings": [
-            {
-                "type": "color",
-                "id": "menu_background",
-                "label": "Menu text background"
-            },
-            {
-                "type": "number",
-                "id": "menu_left_space_1",
-                "label": "Menu Left First Space",
-                "default": 20
-            },
-            {
-                "type": "number",
-                "id": "menu_left_space_2",
-                "label": "Menu Left Second Space",
-                "default": 20
-            },
-            {
-                "type": "number",
-                "id": "menu_right_space_1",
-                "label": "Menu Right Space",
-                "default": 20
-            }
-        ]
-    },
-    {
-        "name": "Cart",
-        "settings": [
-            {
-                "type": "color",
-                "id": "cart_bg_color",
-                "label": "Cart Background Color"
-            },
-            {
-                "type": "number",
-                "id": "cart_bg_opacity",
-                "label": "Cart Background Opacity"
-            },
-            {
-                "type": "textarea",
-                "id": "cart_bg_opacity_description",
-                "label": "Cart Background Opacity Description",
-                "default": "Select the background opacity for the cart. 0 is completely transparent, and 1 is fully opaque."
-            }
-        ]
-    }
+  {
+    "name": "Banner",
+    "settings": [
+      {
+        "type": "text",
+        "id": "banner_text",
+        "label": "Banner Text"
+      },      
+      {
+        "type": "color",
+        "id": "banner_text_color",
+        "label": "Banner Text Color"
+      },
+      {
+        "type": "color",
+        "id": "banner_bg_color",
+        "label": "Banner Background Color"
+      }
+    ]
+  },
+  {
+    "name": "Homepage",
+    "settings": [
+      {
+        "type": "image_picker",
+        "id": "homepage_img",
+        "label": "Homepage Background Image"
+      },
+      {
+        "type": "image_picker",
+        "id": "homepage_img_mobile",
+        "label": "Mobile Homepage Background Image"
+      }
+    ]
+  },
+  {
+    "name": "Menus",
+    "settings": [
+      {
+        "type": "color",
+        "id": "menu_background",
+        "label": "Menu text background"
+      },
+      {
+        "type": "number",
+        "id": "menu_left_space_1",
+        "label": "Menu Left First Space",
+        "default": 20
+      },
+      {
+        "type": "number",
+        "id": "menu_left_space_2",
+        "label": "Menu Left Second Space",
+        "default": 20
+      },
+      {
+        "type": "number",
+        "id": "menu_right_space_1",
+        "label": "Menu Right Space",
+        "default": 20
+      }
+    ]
+  },
+  {
+    "name": "Cart",
+    "settings": [
+      {
+        "type": "color",
+        "id": "cart_bg_color",
+        "label": "Cart Background Color"
+      },
+      {
+        "type": "number",
+        "id": "cart_bg_opacity",
+        "label": "Cart Background Opacity"
+      },
+      {
+        "type": "textarea",
+        "id": "cart_bg_opacity_description",
+        "label": "Cart Background Opacity Description",
+        "default": "Select the background opacity for the cart. 0 is completely transparent, and 1 is fully opaque."
+      }
+    ]
+  }
 ]

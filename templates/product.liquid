@@ -1,21 +1,58 @@
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": "{{ product.title | escape }}",
+  "image": [
+    {% for image in product.images %}
+      "{{ image | image_url: height: 1500 }}"{% unless forloop.last %},{% endunless %}
+    {% endfor %}
+  ],
+  "description": "{{ product.description | strip_html | strip_newlines | escape }}",
+  "sku": "{{ product.sku }}",
+  "brand": {
+    "@type": "Brand",
+    "name": "Jude"
+  },
+  "offers": {
+    "@type": "Offer",
+    "url": "{{ shop.url }}{{ product.url }}",
+    "priceCurrency": "{{ cart.currency.iso_code }}",
+    "price": "{{ product.price | money_without_currency }}",
+    "itemCondition": "https://schema.org/NewCondition",
+    "availability": "{% if product.available %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}",
+    "seller": {
+      "@type": "Organization",
+      "name": "{{ shop.name }}"
+    }
+  },
+  "color": "{% for color in product.metafields.custom.other_colors.value %}{% if color.product_url == product.url %}{{ color.color_name }}{% endif %}{% endfor %}",
+  "size": [
+    {% for variant in product.variants %}
+      "{{ variant.title }}"{% unless forloop.last %},{% endunless %}
+    {% endfor %}
+  ]
+}
+</script>
+
+
 <div class="content-fit">
 
 <div class="product-page">
     <div class="desktop product-main">
         {% for image in product.images %}
-            <img src="{{ image | image_url: height: 800 }}" alt="">
+            <img src="{{ image | image_url: height: 1500 }}" alt="">
         {% endfor %}
     </div>
     <div class="mobile product-slider">        
-        <img src="{{ product.featured_image | image_url: height: 800 }}" alt="">
         {% for image in product.images %}
-            <img src="{{ image | image_url: height: 800 }}" alt="">
+            <img src="{{ image | image_url: height: 1500 }}" alt="">
         {% endfor %}   
     </div>
     <div class="product-info">
         <div class="product-info-title">
-            {{ product.title }}<br>
-            {{ product.price | money }}       
+            <h1>{{ product.title }}</h1>
+            <span>{{ product.price | money }}</span>
         </div>
         {% assign colors = product.metafields.custom.other_colors.value %}    
         <div class="product-color-desc">
@@ -55,15 +92,15 @@
                 </div>
                 <div class="dropdown-options">
                     {% for variant in product.variants %}
-                    {% assign hasStock = variant.inventory_quantity > 0 %}
-                    {% if variant.inventory_quantity > 0 %}
-                        <div class="dropdown-option stock" data-variant-id="{{ variant.id }}">
-                            {{ variant.title }} 
-                        </div>
-                        {% else  %}
-                        <div class="dropdown-option no-stock" data-variant-id="{{ variant.id }}">
-                            {{ variant.title }}
-                        </div>
+                        {% assign hasStock = variant.inventory_quantity > 0 %}
+                        {% if variant.inventory_quantity > 0 %}
+                            <div class="dropdown-option stock" data-variant-id="{{ variant.id }}">
+                                {{ variant.title }}
+                            </div>
+                        {% else %}
+                            <div class="dropdown-option no-stock" data-variant-id="{{ variant.id }}">
+                                {{ variant.title }}
+                            </div>
                         {% endif %}
                     {% endfor %}
                 </div>
@@ -78,21 +115,45 @@
             <input type="hidden" name="id" value="{{ variant.id }}">
             <!-- Add other variant-specific input fields if needed -->
         {% endfor %}
-        <input id="addToCartButton" type="submit" value="Add to Cart">
+        <input id="addToCartButton" disabled type="submit" value="Add to Cart">
+        <button type="button" class="klaviyo-bis-trigger">Join the waitlist</button>
         </form>
         <div class="product-info-desc">
-            {% if product.metafields.custom.pre_order %}                
-                {{ product.metafields.custom.pre_order | metafield_tag  }} 
-            {% endif %}
+            <div class="preorder">
+                {% if product.metafields.custom.pre_order %}                
+                    {{ product.metafields.custom.pre_order | metafield_tag  }} 
+                {% endif %}
+            </div>
             {{ product.description }}       
         </div>
-        <div class="toggle-more-info">
-            <span>More +</span>
-            <span style="display: none;">Less -</span>            
-        </div>
-        <div class="product-info-more"  style="display: none;">
-            {{ product.metafields.custom.more_info | metafield_tag  }}
-        </div>
+        {% if product.metafields.custom.product_details %}                
+            <div class="toggle-more-info" data-info="1">
+                <span>DETAILS</span>
+                <span style="display: none;">DETAILS</span>            
+            </div>
+            <div class="product-info-more"   data-info="1"style="display: none;">
+                {{ product.metafields.custom.product_details | metafield_tag  }}
+            </div>
+        {% endif %}
+        {% if product.metafields.custom.size_fit %}                
+            <div class="toggle-more-info" data-info="2">
+                <span>SIZE & FIT</span>
+                <span style="display: none;">SIZE & FIT</span>            
+            </div>
+            <div class="product-info-more"   data-info="2"style="display: none;">
+                {{ product.metafields.custom.size_fit | metafield_tag  }}
+            </div>
+        {% endif %}
+        {% if product.metafields.custom.delivery_returns %}                
+            <div class="toggle-more-info" data-info="3">
+                <span>DELIVERY & RETURNS</span>
+                <span style="display: none;">DELIVERY & RETURNS</span>            
+            </div>
+            <div class="product-info-more"   data-info="3"style="display: none;">
+                {{ product.metafields.custom.delivery_returns | metafield_tag  }}
+            </div>
+        {% endif %}        
+
 
         <div class="size-guide">
             {% if product.metafields.custom.size_guide %}
@@ -105,16 +166,45 @@
             <div class="size-guide-overlay"></div>
             <div class="size-guide-content">
                 <h2>
-                    {{ size_guide_page.title }}
+                    SIZE GUIDE
                 </h2>
                 {{ size_guide_page.content }}
-                <img src="{{ 'close.svg' |  asset_url }}" class="size-guide-close" alt="">
+                <span class="size-guide-close" alt="">
+                    CLOSE
+                </span>
             </div>
         </div>
+    </div>
+</div>
+{% if product.metafields.custom.related_products %}
+    {% assign related_products = product.metafields.custom.related_products.value %}    
+    <div class="product-related">
+        <p>You may also like</p>
+        <div class="product-related-list">
+            {% for item in related_products %}
+                <div class="product-related-item">
+                    <a href="{{ item.url }}">
+                        <img src="{{ item.featured_image | image_url }}" alt="{{ item.title }}">
+                        <p>{{ item.title }}</p>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}
+
+<div class="product-related product-recently-viewed">
+    <p>Recently Viewed</p>
+    <div class="product-related-list product-recently-viewed-list">
+        <!-- Products will be added here dynamically -->
     </div>
 </div>
 
 
 
 
+
+
 </div>
+
+{% comment %} <script async src="//www.klaviyo.com/onsite/components/back-in-stock/product.js" data-product-id="{{ product.id }}"></script> {% endcomment %}

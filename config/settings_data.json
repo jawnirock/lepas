@@ -1,0 +1,11 @@
+{
+  "current": {
+    "homepage_img": "shopify:\/\/shop_images\/judehome.png",
+    "homepage_img_mobile": "shopify:\/\/shop_images\/homemobile.jpg",
+    "menu_background": "#ffffff",
+    "menu_left_space_2": 30,
+    "cart_bg_color": "#000000",
+    "cart_bg_opacity": 0.1,
+    "content_for_index": []
+  }
+}

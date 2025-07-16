@@ -1,0 +1,92 @@
+<div class="return">
+  <div class="content-fit">
+        <div class="page-content">
+
+            <div class="page-text">
+              {{ page.content }}
+            </div>
+            <div class="contact-order-form">
+              {% form 'contact', class: 'contact__form' %}
+            
+                {% if form.posted_successfully? %}
+                  <p class="contact__success ff-body fs-body-base">
+                    Thank you! Your return form has been successfully sent.
+                  </p>
+                {% endif %}
+                  {{ form.errors | default_errors }}
+                  <input
+                    type="email"
+                    name="contact[email]"
+                    id="ContactFormEmail"
+                    spellcheck="false"
+                    autocomplete="off"
+                    autocapitalize="off"
+                    placeholder="Enter your email"
+                    required
+                    {%- if form.errors contains 'email' -%} class="input--error" aria-invalid="true" {%- endif -%}
+                  >
+                  <input
+                    name="contact[order_number]"
+                    type="text"
+                    id="ContactFormOrderNumber"
+                    placeholder="Order number"
+                    required
+                    {%- if form.errors contains 'body' -%} class="input--error" aria-invalid="true" {%- endif -%}
+                  ></input>
+
+                  <select
+                  name="contact[return_reason]"
+                  id="ContactFormReturnReason"
+                  required
+                  {%- if form.errors contains 'return_reason' -%} class="input--error" aria-invalid="true" {%- endif -%}
+                >
+                  <option value="" disabled selected>Select a return reason</option>
+                  <option value="Size was too small">Size was too small</option>
+                  <option value="Size was too large">Size was too large</option>
+                  <option value="Received the wrong item">Received the wrong item</option>
+                  <option value="Damaged or defective item">Damaged or defective item</option>
+                  <option value="Customer changed their mind">Customer changed their mind</option>
+                </select>
+                
+
+                  <button type="submit" class="submit-button">Submit</button>            
+              {% endform %}
+            </div>
+        </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('contact_order_form').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const email = document.getElementById('ContactEmail').value;
+    const orderNumber = document.getElementById('ContactOrder').value;
+    const returnReason = document.getElementById('ContactReason').value;
+
+    fetch('/contact', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: new URLSearchParams({
+        'form_type': 'contact',
+        'contact[email]': email,
+        'contact[order_number]': orderNumber,
+        'contact[return_reason]': returnReason
+      })
+    })
+    .then(response => {
+      if (response.ok) {
+        document.getElementById('form_message').textContent = 'Thank you! Your return form has been successfully sent.';
+        document.getElementById('contact_order_form').reset();
+      } else {
+        document.getElementById('form_message').textContent = 'There was an issue submitting your request.';
+      }
+    })
+    .catch(error => {
+      document.getElementById('form_message').textContent = 'There was an error. Please try again.';
+      console.error('Form submission error:', error);
+    });
+  });
+</script>

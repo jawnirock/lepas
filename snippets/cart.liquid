@@ -1,5 +1,5 @@
 <div id="cart-container">
-    <div class="cart-title">BAG (<span id="cart-count">{{ cart.item_count }}</span>)</div>
+    <div class="cart-title">BAG (<span id="cart-count-top">{{ cart.item_count }}</span>)</div>
     <div class="cart-items">
         {% for item in cart.items %}
             <div class="cart-item" data-variant-id="{{ item.variant.id }}">
@@ -10,9 +10,9 @@
                     {{ item.product.title }} <br>
                     {{ item.final_price | money }} <br><br>
                     SIZE: {{ item.variant.title }} <br>
-                    {% assign colors = product.metafields.custom.other_colors.value %}    
+                    {% assign colors = item.product.metafields.custom.other_colors.value %}    
                     {% for color in colors %}
-                        {% if color.product_url == product.url %}
+                        {% if color.product_url == item.product.url %}
                             {% if color.color_name %}
                                 <div>
                                     COLOR: {{ color.color_name }}<br>
@@ -20,13 +20,15 @@
                             {% endif %}
                         {% endif %}
                     {% endfor %}  
-                    {% if product.metafields.custom.pre_order %}                
-                        {{ product.metafields.custom.pre_order | metafield_tag  }}
+                    {% if item.product.metafields.custom.pre_order %}                
+                        {{ item.product.metafields.custom.pre_order | metafield_tag  }}
                     {% endif %}                    
                     <span>QUANTITY</span>:
-                    {% comment %} <button class="quantity-button" data-variant-id="{{ item.id }}" data-action="decrement">-</button> {% endcomment %}
-                    <span class="quantity-display" data-variant-id="{{ item.id }}">{{ item.quantity }}</span> <br><br>
-                    {% comment %} <button class="quantity-button" data-variant-id="{{ item.id }}" data-action="increment">+</button> {% endcomment %}
+                    <div class="cart-item-quantity">
+                        <button class="quantity-button" data-variant-id="{{ item.id }}" data-action="decrement">-</button>
+                        <span class="quantity-display" data-variant-id="{{ item.id }}">{{ item.quantity }}</span>
+                        <button class="quantity-button" data-variant-id="{{ item.id }}" data-action="increment">+</button>                        
+                    </div>
                     <button class="remove-button" data-variant-id="{{ item.variant.id }}">Remove</button>
                 </div>
             </div>    

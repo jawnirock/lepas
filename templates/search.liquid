@@ -1,34 +1,40 @@
 <div class="content-fit">
-    {% if search.performed %}
         <div class="search-title">
-            RESULTS FOR '{{ search.terms }}'
         </div>
-        <div class="products">
-            {% for product in search.results %}
-                <div class="product">
-                    <a href="{{ product.url }}">
-                        <img src="{{ product.featured_image | image_url: height: 400 }}" alt="">
-                        {{ product.title }}<br>
-                        {{ product.price | money }}       
-                    </a>
-                    <div class="product-colors">
-                        {% assign colors = product.metafields.custom.other_colors.value %}                
-                        {% for color in colors %}                  
-                            <a class="product-color"
-                                href="{{ color.product_url }}"
-                                style="background-color: {{ color.color }};)"
-                                tabindex="0"
-                            ></a>
-                        {% endfor %}
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
+        {% assign product_results = search.results | where: "object_type", "product" %}
+        {% assign sorted_products = product_results | sort: "title" %}
         
-    {% else %}
-        <div>
-            NO RESULTS
-        </div>
-    {% endif %}
+        {% if product_results.size > 0 %}
+
+            <div class="products" style="display: flex !important;">
+                {% for result in sorted_products %}
+                    <div class="product">
+                        <a href="{{ result.url }}">
+                            <img src="{{ result.featured_image | image_url: height: 400 }}" alt="">
+                            {{ result.title }}<br>
+                            {{ result.price | money }}       
+                        </a>
+                        <div class="product-colors">
+                            {% assign colors = result.metafields.custom.other_colors.value %}                
+                            {% for color in colors %}                  
+                                <a class="product-color"
+                                    href="{{ color.product_url }}"
+                                    style="background-color: {{ color.color }};"
+                                    tabindex="0"
+                                ></a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        
+        {% else %}
+            <div class="search-no-results">
+                No results could be found for "{{ search.terms }}". <br>
+                <form action="/search">
+                    <input class="search-search" type="search" placeholder="SEARCH" name="q" />
+                </form>                
+            </div>
+        {% endif %}
 
 </div>

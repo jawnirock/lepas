@@ -1,26 +1,46 @@
 <div id="content" class="content-fit account">
-      <br>
-      <br>
     {% if customer %}
-      <strong>Welcome, {{ customer.first_name }}!</strong> <br><br>
-      <a href="/account/logout">Log out</a>
-      <br><br><br><br><br>
-      <p>Account details</p>
-      <!-- Add more customer details as needed -->
-      {{ customer.email }} <br>
-        {% if customer.default_address.company %}
-          {{ customer.default_address.company }}<br>
-        {% endif %}
-        {{ customer.default_address.address1 }}<br>
-        {{ customer.default_address.address2 }}<br>
-        {{ customer.default_address.city }}, {{ customer.default_address.province_code }}<br>
-        {{ customer.default_address.country }}<br>
-        {{ customer.default_address.zip }}
+      <div class="account-navigation">
+          <ul>
+              <li><a href="#overview" class="tab-link active">OVERVIEW</a></li>
+              <li><a href="#profile" class="tab-link">MY PROFILE</a></li>
+              <li><a href="#orders" class="tab-link">MY ORDERS</a></li>
+              <li><a href="/account/logout">LOGOUT</a></li>
+          </ul>
+      </div>
+      <div id="overview" class="tab-content active">
+          <div class="account-section">
+              <strong>MY PROFILE <a href="#profile" class="tab-link">VIEW</a></strong>
+              <p>Save and edit your login details, account information, and saved addresses.</p>
+          </div>
+          <div class="account-section">
+              <strong>MY ADDRESSES <a href="/account/addresses">VIEW</a></strong>
+              <p>Save all your delivery details to have them at hand when you order.</p>
+          </div>
+          <div class="account-section">
+              <strong>MY ORDERS <a href="#orders" class="tab-link">VIEW</a></strong>
+              <p>You have not previously ordered as a registered user.</p>
+          </div>
+      </div>
 
+    <div id="profile" class="tab-content">
+        <div class="account-section">
+            <strong>PROFILE</strong>
+            <p>{{ customer.first_name }} {{ customer.last_name }} <br>
+                {{ customer.email }} <br>
+                {{ customer.default_address.country }}</p>
+        </div>
 
-      <a href="/account/addresses">View Addresses ({{ customer.addresses | size }})</a>
-      <br><br><br><br>
+        <div class="account-section">
+            <strong>ADDRESSES <a href="/account/addresses">EDIT</a></strong>
+            {% for address in customer.addresses %}
+                <p>{{ address.first_name }} {{ address.last_name }} <br>{{ address.country }}</p>
+            {% endfor %}            
+        </div>
 
+    </div>
+
+    <div id="orders"  class="tab-content">
       {% if customer.orders.size > 0 %}
         <table>
           <thead>
@@ -46,7 +66,53 @@
         </table>
       {% else %}
         <p>No orders found.</p>
-      {% endif %}
+      {% endif %}       
+    </div>
+
+
+
+      {% comment %} <p>Account details</p>
+      <!-- Add more customer details as needed -->
+      {{ customer.email }} <br>
+        {% if customer.default_address.company %}
+          {{ customer.default_address.company }}<br>
+        {% endif %}
+        {{ customer.default_address.address1 }}<br>
+        {{ customer.default_address.address2 }}<br>
+        {{ customer.default_address.city }}, {{ customer.default_address.province_code }}<br>
+        {{ customer.default_address.country }}<br>
+        {{ customer.default_address.zip }}
+
+
+      <a href="/account/addresses">View Addresses ({{ customer.addresses | size }})</a>
+      <br><br><br><br> {% endcomment %}
+
+      {% comment %} {% if customer.orders.size > 0 %}
+        <table>
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Date</th>
+              <th>Payment Status</th>
+              <th>Fulfillment Status</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for order in customer.orders %}
+              <tr>
+                <td>#{{ order.order_number }}</td>
+                <td>{{ order.created_at | date: "%B %d, %Y" }}</td>
+                <td>{{ order.financial_status }}</td>
+                <td>{{ order.fulfillment_status }}</td>
+                <td>{{ order.total_price | money_with_currency }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p>No orders found.</p>
+      {% endif %} {% endcomment %}
 
     {% else %}
       <p>Please <a href="/account/login">login</a> or <a href="/account/register">register</a> to view your account.</p>

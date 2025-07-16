@@ -3,7 +3,7 @@
         <div class="cart-items-product">
             <h4>Products</h4>
             {% for item in cart.items %}
-                <div class="cart-item" data-variant-id="{{ item.variant.id }}">
+                <div class="cart-item cart-item-product" data-variant-id="{{ item.variant.id }}">
                     <div>
                         <img src="{{ item.image | image_url: height: 800 }}" alt="">
                     </div>
@@ -11,9 +11,9 @@
                         {{ item.product.title }} <br>
                         {{ item.final_price | money }} <br><br>
                         SIZE: {{ item.variant.title }} <br>
-                        {% assign colors = product.metafields.custom.other_colors.value %}    
+                        {% assign colors = item.product.metafields.custom.other_colors.value %}    
                         {% for color in colors %}
-                            {% if color.product_url == product.url %}
+                            {% if color.product_url == item.product.url %}
                                 {% if color.color_name %}
                                     <div>
                                         COLOR: {{ color.color_name }}<br>
@@ -21,8 +21,8 @@
                                 {% endif %}
                             {% endif %}
                         {% endfor %}  
-                        {% if product.metafields.custom.pre_order %}                
-                            {{ product.metafields.custom.pre_order | metafield_tag  }}
+                        {% if item.product.metafields.custom.pre_order %}                
+                            {{ item.product.metafields.custom.pre_order | metafield_tag  }}
                         {% endif %}
                     </div>
                 </div>    
