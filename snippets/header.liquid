@@ -1,9 +1,23 @@
 {% if settings.banner_text != blank %}
   <div class="banner" style="background-color: {{ settings.banner_bg_color }}; color: {{ settings.banner_text_color }};">
+    
+    {% if settings.banner_link != blank %}
+      <a 
+        href="{{ settings.banner_link }}" 
+        class="banner-text"
+        style="color: {{ settings.banner_text_color }}"
+        {% if settings.banner_link_new_tab %}target="_blank" rel="noopener"{% endif %}
+      >
+        {{ settings.banner_text }}
+      </a>
+    {% else %}
       <div class="banner-text">{{ settings.banner_text }}</div>
-      <img class="banner-close" src="{{ 'close.svg' | asset_url }}" alt="">
+    {% endif %}
+
+    <img class="banner-close" src="{{ 'close.svg' | asset_url }}" alt="">
   </div>
 {% endif %}
+
 
 
 <header class="header">
@@ -19,15 +33,22 @@
 </header>
 
 <div class="menu menu-left">
-  {% if request.path contains '/collections/' or request.path contains '/products/' %}
+  {% if request.path contains '/collections/' or request.path contains '/products/' or request.path contains '/pages/new-in' %}
     <a href="#" class="shop-toggler">SHOP</a>      
     <div style="height: {{ settings.menu_left_space_1 }}"></div>
       <div class="shop-toggled">
-      {% for link in linklists.categories.links -%}
-        <a href="/collections/{{link.title  | downcase  | replace: ' ', '-'  }}">
-          {{ link.title | upcase }}
-        </a>
-      {%- endfor %}
+      {% assign home_url = shop.url | append: '/' %}
+      {% for link in linklists.categories.links %}
+        {% if link.url == '/' or link.url == home_url %}
+          <a href="/collections/{{ link.title | downcase | replace: ' ', '-' }}">
+            {{ link.title | upcase }}
+          </a>
+        {% else %}
+          <a href="{{ link.url }}">
+            {{ link.title | upcase }}
+          </a>
+        {% endif %}
+      {% endfor %}
       <div style="height: {{ settings.menu_left_space_2 }}"></div>
     </div>
     {% else %}
@@ -37,9 +58,9 @@
 
     <a href="/pages/about">ABOUT</a>
     {% if template.suffix == 'collections' %}
-      <a href="#" class="shop-toggler">COLLECTIONS</a>
+      <div style="height: {{ settings.menu_left_space_1 }}"></div>    
+      <a href="#" class="shop-toggler">IMAGES</a>
         <div class="shop-toggled">
-          <div style="height: {{ settings.menu_left_space_1 }}"></div>    
           {% for link in linklists.image-collections.links -%}
             <a href="{{link.url}}">
               {{ link.title | upcase }}
@@ -48,17 +69,22 @@
           <div style="height: {{ settings.menu_left_space_1 }}"></div>    
         </div>
     {% else %}
-    <a href="/pages/images">COLLECTIONS</a>
+    {% for link in linklists.image-collections.links -%}
+      {% if forloop.first %}
+        <a href="{{link.url}}">
+          IMAGES
+        </a>
+      {% endif %}
+    {%- endfor %}
     {% endif %}        
-
-    <a href="/pages/stockists">STOCKISTS</a>
 </div>
 
 <div class="menu menu-right">
     <div class="header-search">
-      <form action="/search">
-      <input style="" type="search" placeholder="SEARCH" value="{{search.terms}}" name="q" />
-      </form>
+    <form action="/search" method="get" role="search">
+      <input type="search" name="q" value="{{ search.terms | escape }}" placeholder="SEARCH" />
+      <input type="hidden" name="type" value="product">
+    </form>
     </div>
     <a class="cart-button" href="#">  BAG (<span id="cart-count">{{ cart.item_count }}</span>)
     </a>
@@ -66,24 +92,31 @@
 </div>
 
 <div class="menu-mobile-search">
-  <form action="/search">
-    <input style="background-image: url({{ 'search.svg' |  asset_url }});"placeholder="SEARCH"  type="search" value="{{search.terms}}" name="q" />
-  </form>
+    <form action="/search" method="get" role="search">
+      <input type="search" name="q" value="{{ search.terms | escape }}" placeholder="SEARCH" />
+      <input type="hidden" name="type" value="product">
+    </form>
 </div>
 <div class="menu-mobile">
     <a class="cart-button" href="#">  BAG (<span id="cart-count">{{ cart.item_count }}</span>)
     </a>
     <a href="/account">ACCOUNT</a>
     <div style="height: {{ settings.menu_left_space_1 }}"></div>
-    {% if request.path contains '/collections/' or request.path contains '/products/' %}
+    {% if request.path contains '/collections/' or request.path contains '/products/' or request.path contains '/pages/new-in' %}
     <a href="#" class="shop-toggler">SHOP</a>      
     <div style="height: {{ settings.menu_left_space_1 }}"></div>
       <div class="shop-toggled">
-      {% for link in linklists.categories.links -%}
-        <a href="/collections/{{link.title  | downcase  | replace: ' ', '-'  }}">
-          {{ link.title | upcase }}
-        </a>
-      {%- endfor %}
+      {% for link in linklists.categories.links %}
+        {% if link.url == '/' or link.url == home_url %}
+          <a href="/collections/{{ link.title | downcase | replace: ' ', '-' }}">
+            {{ link.title | upcase }}
+          </a>
+        {% else %}
+          <a href="{{ link.url }}">
+            {{ link.title | upcase }}
+          </a>
+        {% endif %}
+      {% endfor %}
       <div style="height: {{ settings.menu_left_space_2 }}"></div>
     </div>
     {% else %}
@@ -91,9 +124,9 @@
       <div style="height: {{ settings.menu_left_space_1 }}"></div>
     {% endif %}  
     {% if template.suffix == 'collections' %}
-      <a href="#" class="shop-toggler">COLLECTIONS</a>
+      <div style="height: {{ settings.menu_left_space_1 }}"></div>    
+      <a href="#" class="shop-toggler">IMAGES</a>
         <div class="shop-toggled">
-          <div style="height: {{ settings.menu_left_space_1 }}"></div>    
           {% for link in linklists.image-collections.links -%}
             <a href="{{link.url}}">
               {{ link.title | upcase }}
@@ -102,10 +135,15 @@
           <div style="height: {{ settings.menu_left_space_1 }}"></div>    
         </div>
     {% else %}
-    <a href="/pages/images">COLLECTIONS</a>
+    {% for link in linklists.image-collections.links -%}
+      {% if forloop.first %}
+        <a href="{{link.url}}">
+          IMAGES
+        </a>
+      {% endif %}
+    {%- endfor %}
     {% endif %}      
     <a href="/pages/about">ABOUT</a>
-    <a href="/pages/stockists">STOCKISTS</a>
 </div>
 
 <div class="cart">

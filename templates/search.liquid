@@ -1,40 +1,31 @@
 <div class="content-fit">
-        <div class="search-title">
-        </div>
-        {% assign product_results = search.results | where: "object_type", "product" %}
-        {% assign sorted_products = product_results | sort: "title" %}
-        
-        {% if product_results.size > 0 %}
+  <div class="search-title">
+  </div>
 
-            <div class="products" style="display: flex !important;">
-                {% for result in sorted_products %}
-                    <div class="product">
-                        <a href="{{ result.url }}">
-                            <img src="{{ result.featured_image | image_url: height: 400 }}" alt="">
-                            {{ result.title }}<br>
-                            {{ result.price | money }}       
-                        </a>
-                        <div class="product-colors">
-                            {% assign colors = result.metafields.custom.other_colors.value %}                
-                            {% for color in colors %}                  
-                                <a class="product-color"
-                                    href="{{ color.product_url }}"
-                                    style="background-color: {{ color.color }};"
-                                    tabindex="0"
-                                ></a>
-                            {% endfor %}
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        
-        {% else %}
-            <div class="search-no-results">
-                No results could be found for "{{ search.terms }}". <br>
-                <form action="/search">
-                    <input class="search-search" type="search" placeholder="SEARCH" name="q" />
-                </form>                
-            </div>
-        {% endif %}
+  {% assign product_results = search.results | where: "object_type", "product" %}
+  {% assign sorted_products = product_results | sort: "title" %}
+  {% assign excluded_collection = collections['draft-black-friday'] %}
+
+  {% if product_results.size > 0 %}
+
+    <div class="products" style="display: flex !important;">
+      {% for result in sorted_products %}
+        {%- comment -%}
+          Hide products that belong to the "draft black friday" collection
+        {%- endcomment -%}
+        {% unless excluded_collection and result.collections contains excluded_collection %}
+          {% render 'product', product: result %}
+        {% endunless %}
+      {% endfor %}
+    </div>
+
+  {% else %}
+    <div class="search-no-results">
+      No results could be found for "{{ search.terms }}". <br>
+      <form action="/search">
+        <input class="search-search" type="search" placeholder="SEARCH" name="q" />
+      </form>                
+    </div>
+  {% endif %}
 
 </div>

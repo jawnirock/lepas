@@ -1,0 +1,37 @@
+<div class="product-card">
+    <div class="product-images">
+        <a href="{{ product.url }}">
+            <img class="main" src="{{ product.featured_image | image_url: height: 600 }}" alt="">
+            {% if product.images.size > 1 %}
+                <img class="second" src="{{ product.images[1] | image_url: height: 600 }}" alt="{{ product.title }} - Second Image">
+            {% endif %}
+        </a>
+    </div>
+    <a href="{{ product.url }}">
+        <span>
+            {{ product.title }}<br>
+            {% if product.compare_at_price > product.price %}
+                <span class="old-price" style="text-decoration: line-through; margin-right: 5px;">
+                    {{ product.compare_at_price | money }}
+                </span>
+                <span class="sale-price">
+                    {{ product.price | money }}
+                </span>
+                {% else %}
+                <span class="regular-price">
+                    {{ product.price | money }}
+                </span>
+            {% endif %}
+        </span>
+    </a>
+    <div class="product-colors">
+        {% assign colors = product.metafields.custom.other_colors.value %}                
+        {% for color in colors %}                  
+            <a class="product-color"
+                href="{{ color.product_url }}"
+                style="background-color: {{ color.color }}; background-image: url({{ color.pattern  | image_url: height: 300 }});"
+                tabindex="0"
+            ></a>
+        {% endfor %}
+    </div>
+</div>

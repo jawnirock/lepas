@@ -52,7 +52,18 @@
     <div class="product-info">
         <div class="product-info-title">
             <h1>{{ product.title }}</h1>
-            <span>{{ product.price | money }}</span>
+            {% if product.compare_at_price > product.price %}
+            <span class="old-price" style="text-decoration: line-through; margin-right: 5px;">
+                {{ product.compare_at_price | money }}
+            </span>
+            <span class="sale-price">
+                {{ product.price | money }}
+            </span>
+            {% else %}
+            <span class="regular-price">
+                {{ product.price | money }}
+            </span>
+            {% endif %}
         </div>
         {% assign colors = product.metafields.custom.other_colors.value %}    
         <div class="product-color-desc">
@@ -91,6 +102,11 @@
                     <img src="{{ 'dropdown.png' |  asset_url }}" alt="">                    
                 </div>
                 <div class="dropdown-options">
+                    {% if product.metafields.custom.size_chart_message %}                        
+                        <div class="dropdown-option stock">
+                            {{ product.metafields.custom.size_chart_message }}
+                        </div>
+                    {% endif %}
                     {% for variant in product.variants %}
                         {% assign hasStock = variant.inventory_quantity > 0 %}
                         {% if variant.inventory_quantity > 0 %}
@@ -116,7 +132,7 @@
             <!-- Add other variant-specific input fields if needed -->
         {% endfor %}
         <input id="addToCartButton" disabled type="submit" value="Add to Cart">
-        <button type="button" class="klaviyo-bis-trigger">Join the waitlist</button>
+        <button type="button" class="klaviyo-bis-trigger">Notify Me</button>
         </form>
         <div class="product-info-desc">
             <div class="preorder">
@@ -180,14 +196,9 @@
     {% assign related_products = product.metafields.custom.related_products.value %}    
     <div class="product-related">
         <p>You may also like</p>
-        <div class="product-related-list">
+        <div class="products">
             {% for item in related_products %}
-                <div class="product-related-item">
-                    <a href="{{ item.url }}">
-                        <img src="{{ item.featured_image | image_url }}" alt="{{ item.title }}">
-                        <p>{{ item.title }}</p>
-                    </a>
-                </div>
+                {% render 'product', product: item %}
             {% endfor %}
         </div>
     </div>
@@ -207,4 +218,3 @@
 
 </div>
 
-{% comment %} <script async src="//www.klaviyo.com/onsite/components/back-in-stock/product.js" data-product-id="{{ product.id }}"></script> {% endcomment %}

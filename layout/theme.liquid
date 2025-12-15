@@ -23,15 +23,103 @@
         <link rel="icon" type="image/png" sizes="16x16" href="{{ 'favicon-16x16.png' | asset_url }}">
         <link rel="icon" href="{{ 'favicon.ico' | asset_url }}" type="image/x-icon">
         <link rel="manifest" href="/site.webmanifest">
+        <link href="https://api.fontshare.com/v2/css?f[]=switzer@400,500&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.css" integrity="sha512-wR4oNhLBHf7smjy0K4oqzdWumd+r5/+6QO/vDda76MW5iug4PT7v86FoEkySIJft3XA0Ae6axhIvHrqwm793Nw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
         {{ 'style.css' |  asset_url | stylesheet_tag }}
+        {{ 'custom.css' | asset_url | stylesheet_tag }}
         <meta name="viewport" content="width=device-width, initial-scale=1">
     </head>
     <body>
         <div class="container-main">
         {% render 'header' %}
             {{ content_for_layout }}
+            {%- capture localization_form_html -%}
+                {%- if localization.available_countries.size > 1 -%}
+                    <details class="localization">
+                        <summary>
+                            <span>
+                                Shipping to <br>
+                                {{ localization.country.name }} ({{ localization.country.currency.symbol }} / {{ localization.country.iso_code }})
+                            </span>
+
+                            <img src="{{ 'newarrow.png' |  asset_url }}" alt="">
+                        </summary>
+
+                        <div class="localization-content">
+                            <button
+                                type="button"
+                                onclick="this.closest('details').querySelector('summary')?.click();"
+                                class="localization-content__overlay"
+                            >
+                                <span class="visually-hidden">Close</span>
+                            </button>
+                            
+                            <div class="localization-content__inner">
+                                
+                                <div class="localization-content__head">
+                                    <span></span>
+                                    
+                                    <p>
+                                        Select location
+                                    </p>
+
+                                    <button
+                                        type="button"
+                                        onclick="this.closest('details').querySelector('summary')?.click();"
+                                        class="localization-content__close"
+                                    >
+                                        <span class="visually-hidden">Close</span>
+
+                                        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                                        viewBox="0 0 378.303 378.303" xml:space="preserve">
+                                            <polygon style="fill: currentColor;"
+                                                points="378.303,28.285 350.018,0 189.151,160.867 28.285,0 0,28.285 160.867,189.151 0,350.018 28.285,378.302 189.151,217.436 350.018,378.302 378.303,350.018 217.436,189.151 ">
+                                            </polygon>
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                <div class="localization-content__body">
+                                    <p class="localization-content__subheading">
+                                        If you already have items in your basket, please note that they will be shipped to the country/region you will select.
+                                    </p>
+
+                                    {%- form 'localization' -%}
+                                        <div class="localization-content__row">
+                                            <div class="localization-content__field">
+                                                <label for="Localization-Country">
+                                                    Country/Region
+                                                </label>
+                                                
+                                                <select
+                                                    name="country_code"
+                                                    id="Localization-Country"
+                                                >
+                                                    {%- for country in localization.available_countries -%}
+                                                        <option
+                                                            value="{{- country.iso_code -}}"
+                                                            {% if country.iso_code == localization.country.iso_code %}
+                                                                selected
+                                                            {% endif %}
+                                                        >
+                                                            {{ country.name }} ({{ country.currency.iso_code }} {{ country.currency.symbol }})
+                                                        </option>
+                                                    {%- endfor -%}
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="localization-content__actions">
+                                            <button type="submit">Confirm</button>
+                                        </div>
+                                    {%- endform -%}
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+                {%- endif -%}
+            {%- endcapture -%}
             <footer class="footer">
                 <div class="footer-wrap desktop">
                     <div class="footer-newsletter">
@@ -39,25 +127,31 @@
                             <input type="hidden" name="form_type" value="customer">
                             <input type="hidden" name="utf8" value="✓">
                             <span>Subscribe to our Newsletter</span><br>
-                            <span class="enjoy">Enjoy 10% off your first order</span>
+                            {% comment %} <span class="enjoy">Enjoy 10% off your first order</span> {% endcomment %}
                             <div style="display: flex;">
                                 <input type="email" id="email" name="contact[email]" placeholder="YOUR EMAIL ADDRESS" required>
-                                <button type="submit">></button>
+                                <button type="submit">
+                                    <img src="{{ 'newarrow.png' |  asset_url }}" alt="">
+                                </button>
                             </div>
                             <div class="newsletter-check">
                                 <input type="checkbox" id="privacy-policy" required>
                                 <label for="privacy-policy">I have read and understood the
-                                    <a target="_blank" href="/pages/legal-and-privacy">Privacy Policy</a>
+                                    <a target="_blank" href="/policies/privacy-policy">Privacy Policy</a>
                                 </label>
                             </div>
                         </form>
                     </div>
                     <div class="footer-lists">
+                        <div class="footer-list footer-list--localization">
+                            {{- localization_form_html -}}
+                        </div>
+                        
                         <div class="footer-list social">
                             <a href="/pages/about">About the brand</a>
                             {% comment %} <a href="/pages/coming-soon">About the brand</a> {% endcomment %}
                             <a target="_blank" href="https://www.instagram.com/judethebrand?igsh=MWw0YW1oN2Q1Y2kx">Instagram</a>
-                            <a href="/pages/contact">Contact us</a>
+                            <a href="/pages/contact">Contact</a>
                             <select id="currency-select" class="currency">
                                 <option value="Currency" disabled selected>Currency</option>
                                 <option value="EURO" data-url="https://thejude.com">EURO</option>
@@ -90,15 +184,17 @@
                             <input type="hidden" name="form_type" value="customer">
                             <input type="hidden" name="utf8" value="✓">
                             <span>Subscribe to our Newsletter</span><br>
-                            <span class="enjoy">Enjoy 10% off your first order</span>
+                            {% comment %} <span class="enjoy">Enjoy 10% off your first order</span> {% endcomment %}
                             <div class="newsletter-email">
                                 <input type="email" id="email" name="contact[email]" placeholder="YOUR EMAIL ADDRESS" required>
-                                <button type="submit">></button>
+                                <button type="submit">
+                                    <img src="{{ 'newarrow.png' |  asset_url }}" alt="">                                    
+                                </button>
                             </div>
                             <div class="newsletter-check">
                                 <input type="checkbox" id="privacy-policy" required>
                                 <label for="privacy-policy">I have read and understood the
-                                    <a target="_blank" href="/pages/legal-and-privacy">Privacy Policy</a>
+                                    <a target="_blank" href="/policies/privacy-policy">Privacy Policy</a>
                                 </label>
                             </div>
                         </form>
@@ -111,6 +207,7 @@
                                    {{ link.title | upcase }}
                                </a>
                            {%- endfor %}
+                            {{- localization_form_html -}}
                            {% for link in linklists.footer-2.links -%}
                                <a class="" href="{{ link.url }}">
                                {% comment %} <a class="" href="/pages/coming-soon">{% endcomment %}
@@ -124,7 +221,7 @@
                             <a href="/pages/about">About the brand</a>
                             {% comment %} <a href="/pages/coming-soon">About the brand</a> {% endcomment %}
                             <a target="_blank" href="https://www.instagram.com/judethebrand?igsh=MWw0YW1oN2Q1Y2kx">Instagram</a>
-                            <a href="/pages/contact">Contact us</a>
+                            <a href="/pages/contact">Contact</a>
                             <select id="currency-select" class="currency">
                                 <option value="Currency" disabled selected>Currency</option>
                                 <option value="EURO" data-url disabled="https://thejude.com">EURO</option>
@@ -146,7 +243,7 @@
             });
             klaviyo.enable("backinstock",{ 
             trigger: {
-            product_page_text: "Join the waitlist",
+            product_page_text: "Notify Me",
             product_page_class: "button",
             product_page_text_align: "center",
             product_page_margin: "0px",
@@ -156,7 +253,7 @@
             headline: "{product_name}",
             body_content: "Leave us your email and we will contact you once it is available again.",
             email_field_label: "Email",
-            button_label: "Join the waitlist",
+            button_label: "Notify Me",
             subscription_success_label: "Thank you! You will receive an email when this item is back in stock.",
             footer_content: '',
             additional_styles: `

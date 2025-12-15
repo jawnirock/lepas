@@ -1,0 +1,73 @@
+<div class="arrivals">
+  <div class="content-fit">
+    {% for block in section.blocks %}
+      
+      {% case block.type %}
+      
+        {% when 'image' %}
+          <div class="arrival-image">
+            <img src="{{ block.settings.image | image_url: width: 1500 }}" alt="{{ block.settings.description | escape }}">
+            <div class="arrival-image-desc">{{ block.settings.description }}</div>
+          </div>
+          
+        {% when 'products' %}
+          {% assign col = block.settings.collection %}
+          {% if collections[col].products.size > 0 %}
+            <div class="arrival-products">
+                <div class="products">
+                    {% for product in collections[col].products %}
+                        {% render 'product', product: product %}
+                    {% endfor %}
+                </div>                  
+            </div>
+          {% endif %}
+          
+      {% endcase %}
+      
+    {% endfor %}
+  </div>
+</div>
+
+
+{% schema %}
+{
+  "name": "New Arrivals",
+  "settings": [],
+  "blocks": [
+    {
+      "type": "image",
+      "name": "Image Block",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+            "type": "richtext",
+            "id": "description",
+            "label": "Description"
+        }
+      ]
+    },
+    {
+      "type": "products",
+      "name": "Products Block",
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 100,
+  "presets": [
+    {
+      "name": "New Arrivals",
+      "category": "Featured"
+    }
+  ]
+}
+{% endschema %}

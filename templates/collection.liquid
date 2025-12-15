@@ -14,20 +14,14 @@
           "name": "{{ product.title | escape }}",
           "image": "{% if product.featured_image %}{{ product.featured_image | image_url: height: 400 }}{% endif %}",
           "sku": "{{ product.sku }}",
-          "brand": {
-            "@type": "Brand",
-            "name": "{{ product.vendor }}"
-          },
+          "brand": { "@type": "Brand", "name": "{{ product.vendor }}" },
           "offers": {
             "@type": "Offer",
             "url": "{{ shop.url }}{{ product.url }}",
             "priceCurrency": "{{ cart.currency.iso_code }}",
             "price": "{{ product.price | money_without_currency }}",
             "availability": "{% if product.available %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}",
-            "seller": {
-              "@type": "Organization",
-              "name": "{{ shop.name }}"
-            }
+            "seller": { "@type": "Organization", "name": "{{ shop.name }}" }
           }
         }
       }{% unless forloop.last %},{% endunless %}
@@ -37,105 +31,139 @@
 </script>
 
 <div class="content-fit">
-    <h1 class="products-title" style="display: none;">{{ collection.title }}</h1>
-    <div class="products">
-        {% paginate collection.products by 28 %}
-            {% for product in collection.products %}
-                <div class="product">
-                    <div class="product-images">
-                        {% for image in product.images %}
-                        <a href="{{ product.url }}">
-                            <img src="{{ image | image_url: height: 400 }}" alt="">
-                        </a>
-                        {% endfor %}
-                    </div>
-                    <a href="{{ product.url }}">
-                        <span>
-                            {{ product.title }}<br>
-                            {{ product.price | money }}       
-                        </span>
-                    </a>
-                    <div class="product-colors">
-                        {% assign colors = product.metafields.custom.other_colors.value %}                
-                        {% for color in colors %}                  
-                            <a class="product-color"
-                                href="{{ color.product_url }}"
-                                style="background-color: {{ color.color }}; background-image: url({{ color.pattern  | image_url: height: 300 }});"
-                                tabindex="0"
-                            ></a>
-                        {% endfor %}
-                    </div>
-                </div>
-            {% endfor %}
+  <h1 class="products-title" hidden>{{ collection.title }}</h1>
 
-            <!-- Pagination Links -->
-            <div class="pagination">
-                {% if paginate.previous %}
-                    <a href="{{ paginate.previous.url }}" class="prev">«</a>
-                {% endif %}
-
-                {% for part in paginate.parts %}
-                    {% if part.is_link %}
-                        <a href="{{ part.url }}">{{ part.title }}</a>
-                    {% else %}
-                        <span class="current">{{ part.title }}</span>
-                    {% endif %}
-                {% endfor %}
-
-                {% if paginate.next %}
-                    <a href="{{ paginate.next.url }}" class="next">»</a>
-                {% endif %}
-            </div>
-        {% endpaginate %}
+  {% paginate collection.products by 12 %}
+    <div id="products-grid" class="products">
+      {% for product in collection.products %}
+        {% render 'product', product: product %}
+      {% endfor %}
     </div>
-    <div class="products products-mobile">
-        {% paginate collection.products by 20 %}
-            {% for product in collection.products %}
-                <div class="product">
-                    <div class="product-images">
-                        {% for image in product.images %}
-                        <a href="{{ product.url }}">
-                            <img src="{{ image | image_url: height: 400 }}" alt="">
-                        </a>
-                        {% endfor %}
-                    </div>
-                    <a href="{{ product.url }}">
-                        <span>
-                            {{ product.title }}<br>
-                            {{ product.price | money }}       
-                        </span>
-                    </a>
-                    <div class="product-colors">
-                        {% assign colors = product.metafields.custom.other_colors.value %}                
-                        {% for color in colors %}                  
-                            <a class="product-color"
-                                href="{{ color.product_url }}"
-                                style="background-color: {{ color.color }}; background-image: url({{ color.pattern  | image_url: height: 300 }});"
-                                tabindex="0"
-                            ></a>
-                        {% endfor %}
-                    </div>
-                </div>
-            {% endfor %}
 
-            <!-- Pagination Links -->
-            <div class="pagination">
-                {% if paginate.previous %}
-                    <a href="{{ paginate.previous.url }}" class="prev">«</a>
-                {% endif %}
+    <!-- Keep server pagination for SEO / no-JS fallback -->
+    <nav id="server-pagination" class="pagination" aria-label="Pagination">
+      {% if paginate.previous %}
+        <a href="{{ paginate.previous.url }}" class="prev" rel="prev">Prev</a>
+      {% endif %}
 
-                {% for part in paginate.parts %}
-                    {% if part.is_link %}
-                        <a href="{{ part.url }}">{{ part.title }}</a>
-                    {% else %}
-                        <span class="current">{{ part.title }}</span>
-                    {% endif %}
-                {% endfor %}
+      {% for part in paginate.parts %}
+        {% if part.is_link %}
+          <a href="{{ part.url }}">{{ part.title }}</a>
+        {% else %}
+          <span class="current">{{ part.title }}</span>
+        {% endif %}
+      {% endfor %}
 
-                {% if paginate.next %}
-                    <a href="{{ paginate.next.url }}" class="next">»</a>
-                {% endif %}
-            </div>
-        {% endpaginate %}
-    </div>
+      {% if paginate.next %}
+        <a href="{{ paginate.next.url }}" class="next" rel="next">Next</a>
+      {% endif %}
+    </nav>
+
+    <!-- Sentinel at the very end -->
+    <div id="infinite-scroll-sentinel" aria-hidden="true"></div>
+
+    <!-- Loading message -->
+    <div id="infinite-loading" role="status" aria-live="polite" aria-atomic="true">Loading…</div>
+  {% endpaginate %}
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var grid = document.getElementById('products-grid');
+  var pagination = document.getElementById('server-pagination');
+  var sentinel = document.getElementById('infinite-scroll-sentinel');
+  var loadingUI = document.getElementById('infinite-loading');
+
+  if (!grid || !pagination || !sentinel || !loadingUI) return;
+
+  // Hide server pagination visually (still in DOM for SEO/no-JS)
+  pagination.style.display = 'none';
+  loadingUI.style.display = 'none';
+
+  var nextLinkEl = pagination.querySelector('.next');
+  var nextURL = nextLinkEl ? nextLinkEl.getAttribute('href') : null;
+  var isLoading = false;
+
+  // 3 seconds delay between batches
+  var DELAY_BETWEEN_LOADS = 1500;
+
+  // We won't start observing until the user scrolls at least a little
+  var observerArmed = false;
+
+  function armObserverOnceUserScrolls() {
+    if (observerArmed) return;
+    var scrolledEnough = window.scrollY > 80; // tweak threshold if you want
+    if (scrolledEnough) {
+      observer.observe(sentinel);
+      observerArmed = true;
+      window.removeEventListener('scroll', armObserverOnceUserScrolls, { passive: true });
+    }
+  }
+
+  function showLoading(show) {
+    loadingUI.style.display = show ? 'block' : 'none';
+  }
+
+  function delay(ms) {
+    return new Promise(function(resolve) { setTimeout(resolve, ms); });
+  }
+
+  async function loadMore() {
+    if (isLoading || !nextURL) return;
+
+    isLoading = true;
+    showLoading(true);
+
+    // Pause triggers during fetch + enforced delay
+    observer.unobserve(sentinel);
+
+    try {
+      var url = new URL(nextURL, window.location.origin);
+      url.searchParams.set('view', 'products-only');
+
+      var res = await fetch(url.toString(), { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+      if (!res.ok) throw new Error('Network error: ' + res.status);
+
+      var html = await res.text();
+      var doc = new DOMParser().parseFromString(html, 'text/html');
+
+      // Append exactly the next batch (server returns 12)
+      var newItems = doc.querySelectorAll('.products > *');
+      newItems.forEach(function(el) { grid.appendChild(el); });
+
+      // Update next URL from fragment
+      var newNext = doc.querySelector('.pagination .next');
+      nextURL = newNext ? newNext.getAttribute('href') : null;
+
+      // Enforce visible gap between loads
+      await delay(DELAY_BETWEEN_LOADS);
+
+      // Re-arm observer only if there is another page left
+      if (nextURL) observer.observe(sentinel);
+    } catch (err) {
+      console.error('Infinite scroll failed:', err);
+      // Optional: pagination.style.display = 'block';
+    } finally {
+      isLoading = false;
+      showLoading(false);
+    }
+  }
+
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) loadMore();
+    });
+  }, {
+    root: null,
+    rootMargin: '0px', // no preloading; must actually reach near the bottom
+    threshold: 0
+  });
+
+  // Do NOT observe immediately — wait for the first user scroll
+  if (nextURL) {
+    window.addEventListener('scroll', armObserverOnceUserScrolls, { passive: true });
+    // In case user lands mid-page (e.g., via anchor), arm immediately if already scrolled enough:
+    armObserverOnceUserScrolls();
+  }
+});
+</script>

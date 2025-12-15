@@ -9,7 +9,19 @@
                     </div>
                     <div>
                         {{ item.product.title }} <br>
-                        {{ item.final_price | money }} <br><br>
+                    {% if item.original_price > item.final_price %}
+                        <span class="old-price" style="text-decoration: line-through; margin-right: 5px;">
+                            {{ item.original_price | money }}
+                        </span>
+                        <span class="sale-price">
+                            {{ item.final_price | money }}
+                        </span>
+                        {% else %}
+                        <span class="regular-price">
+                            {{ item.final_price | money }}
+                        </span>
+                        {% endif %}
+                        <br><br>
                         SIZE: {{ item.variant.title }} <br>
                         {% assign colors = item.product.metafields.custom.other_colors.value %}    
                         {% for color in colors %}

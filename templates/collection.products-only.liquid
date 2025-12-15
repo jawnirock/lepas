@@ -1,0 +1,15 @@
+{% layout none %}
+
+{% paginate collection.products by 12 %}
+  <div class="products">
+    {% for product in collection.products %}
+      {% render 'product', product: product %}
+    {% endfor %}
+  </div>
+
+  <nav class="pagination">
+    {% if paginate.next %}
+      <a class="next" href="{{ paginate.next.url }}" rel="next">Next</a>
+    {% endif %}
+  </nav>
+{% endpaginate %}

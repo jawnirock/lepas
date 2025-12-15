@@ -1,24 +1,36 @@
 [
   {
-    "name": "Banner",
-    "settings": [
-      {
-        "type": "text",
-        "id": "banner_text",
-        "label": "Banner Text"
-      },      
-      {
-        "type": "color",
-        "id": "banner_text_color",
-        "label": "Banner Text Color"
-      },
-      {
-        "type": "color",
-        "id": "banner_bg_color",
-        "label": "Banner Background Color"
-      }
-    ]
-  },
+  "name": "Banner",
+  "settings": [
+    {
+      "type": "text",
+      "id": "banner_text",
+      "label": "Banner Text"
+    },
+    {
+      "type": "color",
+      "id": "banner_text_color",
+      "label": "Banner Text Color"
+    },
+    {
+      "type": "color",
+      "id": "banner_bg_color",
+      "label": "Banner Background Color"
+    },
+    {
+      "type": "url",
+      "id": "banner_link",
+      "label": "Banner Link"
+    },
+    {
+      "type": "checkbox",
+      "id": "banner_link_new_tab",
+      "label": "Open link in new tab",
+      "default": false
+    }
+  ]
+},
+
   {
     "name": "Homepage",
     "settings": [
