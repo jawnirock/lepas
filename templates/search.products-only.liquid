@@ -1,0 +1,21 @@
+{% layout none %}
+
+{% assign excluded_collection = collections['draft-black-friday'] %}
+
+{% paginate search.results by 12 %}
+  <div class="products">
+    {% for result in search.results %}
+      {% if result.object_type == 'product' %}
+        {% unless excluded_collection and result.collections contains excluded_collection %}
+          {% render 'product', product: result %}
+        {% endunless %}
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  <nav class="pagination">
+    {% if paginate.next %}
+      <a class="next" href="{{ paginate.next.url }}" rel="next">Next</a>
+    {% endif %}
+  </nav>
+{% endpaginate %}

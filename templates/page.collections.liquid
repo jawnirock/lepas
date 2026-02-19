@@ -10,7 +10,7 @@
         {% else %}              
           <a>
         {% endif %}
-            <img src="{{ image | image_url }}">
+            <img src="{{ image | image_url: height: 800 }}">
           </a>
       {% endfor %}
     {% endif %}

@@ -1105,7 +1105,7 @@ font-family: Switzer;
         height: auto;
         width: 100%;
         object-fit: cover;
-        height: 450px;
+        aspect-ratio: 1536 / 1920;
         padding: 0px;
         // background-color: #AE171A;
         @media only screen and (max-width: 768px) {

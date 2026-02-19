@@ -1,31 +1,153 @@
 <div class="content-fit">
-  <div class="search-title">
-  </div>
+  <div class="search-title"></div>
 
-  {% assign product_results = search.results | where: "object_type", "product" %}
-  {% assign sorted_products = product_results | sort: "title" %}
   {% assign excluded_collection = collections['draft-black-friday'] %}
 
-  {% if product_results.size > 0 %}
+  {% if search.performed %}
 
-    <div class="products" style="display: flex !important;">
-      {% for result in sorted_products %}
-        {%- comment -%}
-          Hide products that belong to the "draft black friday" collection
-        {%- endcomment -%}
-        {% unless excluded_collection and result.collections contains excluded_collection %}
-          {% render 'product', product: result %}
-        {% endunless %}
-      {% endfor %}
-    </div>
+    {% paginate search.results by 12 %}
+      {%- assign product_count_on_page = 0 -%}
+
+      <div id="products-grid" class="products" style="display: flex !important;">
+        {% for result in search.results %}
+          {% if result.object_type == 'product' %}
+            {% unless excluded_collection and result.collections contains excluded_collection %}
+              {% render 'product', product: result %}
+              {%- assign product_count_on_page = product_count_on_page | plus: 1 -%}
+            {% endunless %}
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      {% if search.results_count > 0 and product_count_on_page == 0 %}
+        <div class="search-no-results">
+          No product results could be shown for "{{ search.terms }}".
+        </div>
+      {% endif %}
+
+      <!-- Keep server pagination for SEO/no-JS; hidden by JS -->
+      <nav id="server-pagination" class="pagination" aria-label="Pagination">
+        {% if paginate.previous %}
+          <a href="{{ paginate.previous.url }}" class="prev" rel="prev">Prev</a>
+        {% endif %}
+
+        {% for part in paginate.parts %}
+          {% if part.is_link %}
+            <a href="{{ part.url }}">{{ part.title }}</a>
+          {% else %}
+            <span class="current">{{ part.title }}</span>
+          {% endif %}
+        {% endfor %}
+
+        {% if paginate.next %}
+          <a href="{{ paginate.next.url }}" class="next" rel="next">Next</a>
+        {% endif %}
+      </nav>
+
+      <div id="infinite-scroll-sentinel" aria-hidden="true"></div>
+      <div id="infinite-loading" role="status" aria-live="polite" aria-atomic="true">Loading…</div>
+    {% endpaginate %}
+
+    {% if search.results_count == 0 %}
+      <div class="search-no-results">
+        No results could be found for "{{ search.terms }}". <br>
+        <form action="/search">
+          <input class="search-search" type="search" placeholder="SEARCH" name="q" />
+        </form>
+      </div>
+    {% endif %}
 
   {% else %}
     <div class="search-no-results">
-      No results could be found for "{{ search.terms }}". <br>
       <form action="/search">
         <input class="search-search" type="search" placeholder="SEARCH" name="q" />
-      </form>                
+      </form>
     </div>
   {% endif %}
-
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var grid = document.getElementById('products-grid');
+  var pagination = document.getElementById('server-pagination');
+  var sentinel = document.getElementById('infinite-scroll-sentinel');
+  var loadingUI = document.getElementById('infinite-loading');
+
+  if (!grid || !pagination || !sentinel || !loadingUI) return;
+
+  pagination.style.display = 'none';
+  loadingUI.style.display = 'none';
+
+  var nextLinkEl = pagination.querySelector('.next');
+  var nextURL = nextLinkEl ? nextLinkEl.getAttribute('href') : null;
+  var isLoading = false;
+
+  var DELAY_BETWEEN_LOADS = 3000;
+  var observerArmed = false;
+
+  function showLoading(show) {
+    loadingUI.style.display = show ? 'block' : 'none';
+  }
+
+  function delay(ms) {
+    return new Promise(function(resolve) { setTimeout(resolve, ms); });
+  }
+
+  function armObserverOnceUserScrolls() {
+    if (observerArmed) return;
+    if (window.scrollY > 80) {
+      observer.observe(sentinel);
+      observerArmed = true;
+      window.removeEventListener('scroll', armObserverOnceUserScrolls, { passive: true });
+    }
+  }
+
+  async function loadMore() {
+    if (isLoading || !nextURL) return;
+
+    isLoading = true;
+    showLoading(true);
+    observer.unobserve(sentinel);
+
+    try {
+      var url = new URL(nextURL, window.location.origin);
+      url.searchParams.set('view', 'products-only');
+
+      var res = await fetch(url.toString(), { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+      if (!res.ok) throw new Error('Network error: ' + res.status);
+
+      var html = await res.text();
+      var doc = new DOMParser().parseFromString(html, 'text/html');
+
+      // Append new product cards
+      var newItems = doc.querySelectorAll('.products > *');
+      newItems.forEach(function(el) { grid.appendChild(el); });
+
+      // Update next URL
+      var newNext = doc.querySelector('.pagination .next');
+      nextURL = newNext ? newNext.getAttribute('href') : null;
+
+      await delay(DELAY_BETWEEN_LOADS);
+
+      if (nextURL) observer.observe(sentinel);
+    } catch (err) {
+      console.error('Search infinite scroll failed:', err);
+      // Optional fallback: pagination.style.display = 'block';
+    } finally {
+      isLoading = false;
+      showLoading(false);
+    }
+  }
+
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) loadMore();
+    });
+  }, { root: null, rootMargin: '0px', threshold: 0 });
+
+  if (nextURL) {
+    window.addEventListener('scroll', armObserverOnceUserScrolls, { passive: true });
+    armObserverOnceUserScrolls();
+  }
+});
+</script>
