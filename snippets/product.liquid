@@ -1,11 +1,10 @@
 <div class="product-card">
-    <div class="product-images">
-        <a href="{{ product.url }}">
-            <img class="main" src="{{ product.featured_image | image_url: height: 600 }}" alt="">
-            {% if product.images.size > 1 %}
-                <img class="second" src="{{ product.images[1] | image_url: height: 600 }}" alt="{{ product.title }} - Second Image">
-            {% endif %}
-        </a>
+    <div class="product-images product-card-slider">
+        {% for image in product.images %}
+            <a href="{{ product.url }}">
+                <img src="{{ image | image_url: height: 600 }}" alt="{{ product.title }}">
+            </a>
+        {% endfor %}
     </div>
     <a href="{{ product.url }}">
         <span>

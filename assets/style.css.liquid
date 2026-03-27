@@ -471,7 +471,7 @@ body button:hover, body button:focus {
   }
 }
 .product-card .product-images .slick-dots {
-  opacity: 0;
+  opacity: 1;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -479,27 +479,36 @@ body button:hover, body button:focus {
   display: -ms-flexbox;
   display: flex;
   position: absolute;
-  bottom: 11px;
+  bottom: 10px;
   width: 100%;
 }
-@media only screen and (max-width: 768px) {
-  .product-card .product-images .slick-dots {
-    opacity: 1;
-  }
-}
 .product-card .product-images .slick-dots li {
-  width: 14.2857142857%;
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
   height: 1px;
 }
 .product-card .product-images .slick-dots li button {
   width: 100%;
   height: 1px;
   border: 0px;
-  background: #f7f7f7;
+  background: #F6F6F6;
   text-indent: -9999px;
+  padding: 0;
 }
 .product-card .product-images .slick-dots li.slick-active button {
-  background: #a0a0a0;
+  background: #4b4b4b;
+}
+.product-card .product-images .slick-next img, .product-card .product-images .slick-prev img {
+  width: 12px;
+  height: 12px;
+  -o-object-fit: contain;
+  object-fit: contain;
+  display: block;
+}
+.product-card .product-images .slick-prev img {
+  -webkit-transform: scaleX(-1);
+  transform: scaleX(-1);
 }
 .product-card .product-images .slick-next {
   left: auto;

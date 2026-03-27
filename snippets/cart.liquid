@@ -23,7 +23,16 @@
                     <br><br>
 
                     
-                    SIZE: {{ item.variant.title }} <br>
+                    <div class="cart-item-size">
+                        <label for="size-select-{{ item.variant.id }}">SIZE:</label>
+                        <select class="size-select" id="size-select-{{ item.variant.id }}" data-line-item-key="{{ item.key }}" data-current-variant-id="{{ item.variant.id }}" data-quantity="{{ item.quantity }}">
+                            {% for variant in item.product.variants %}
+                                <option value="{{ variant.id }}" {% if variant.id == item.variant.id %}selected{% endif %} {% unless variant.available %}disabled{% endunless %}>
+                                    {{ variant.title }}{% unless variant.available %} - Sold Out{% endunless %}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
                     {% assign colors = item.product.metafields.custom.other_colors.value %}    
                     {% for color in colors %}
                         {% if color.product_url == item.product.url %}

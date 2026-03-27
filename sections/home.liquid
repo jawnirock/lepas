@@ -109,9 +109,11 @@
                     <img src="{{ block.settings.image | image_url: width: 1500 }}" alt="{{ block.settings.title | escape }}">
                 </a>
               {% elsif block.settings.media_type == "video" %}
-                <video autoplay muted loop playsinline>
-                  <source src="{{ block.settings.video_url }}" type="video/mp4">
-                </video>
+                <a href="{{ block.settings.link | escape }}">
+                  <video autoplay muted loop playsinline>
+                    <source src="{{ block.settings.video_url }}" type="video/mp4">
+                  </video>
+                </a>
               {% endif %}
           </div>
         {% endfor %}

@@ -121,7 +121,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
       // Append new product cards
       var newItems = doc.querySelectorAll('.products > *');
-      newItems.forEach(function(el) { grid.appendChild(el); });
+      newItems.forEach(function(el) {
+        grid.appendChild(el);
+        $(el).find('.product-card-slider').slick({
+          dots: false,
+          arrows: true,
+          prevArrow: `<button type="button" class="slick-prev"><img src="{{ 'newarrow.png' | asset_url }}" alt=""></button>`,
+          nextArrow: `<button type="button" class="slick-next"><img src="{{ 'newarrow.png' | asset_url }}" alt=""></button>`,
+          infinite: false,
+          responsive: [
+            {
+              breakpoint: 769,
+              settings: {
+                dots: true,
+                arrows: false
+              }
+            }
+          ]
+        });
+      });
 
       // Update next URL
       var newNext = doc.querySelector('.pagination .next');

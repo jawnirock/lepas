@@ -64,6 +64,23 @@ $(document).ready(function () {
       arrows: false
   });
 
+  $('.product-card-slider').slick({
+      dots: false,
+      arrows: true,
+      prevArrow: `<button type="button" class="slick-prev"><img src="{{ 'arrownew.png' | asset_url }}" alt=""></button>`,
+      nextArrow: `<button type="button" class="slick-next"><img src="{{ 'arrownew.png' | asset_url }}" alt=""></button>`,
+      infinite: false,
+      responsive: [
+          {
+              breakpoint: 769,
+              settings: {
+                  dots: true,
+                  arrows: false
+              }
+          }
+      ]
+  });
+
   // $('.product-images').slick({
   //   dots: true,
   //   prevArrow: '<button type="button" class="slick-prev"><</button>',
@@ -261,6 +278,59 @@ $('#sidebar-cart').on('click', '.remove-button', function () {
   });
 });
 
+// Change event for size select dropdown
+$('#sidebar-cart').on('change', '.size-select', function () {
+  const lineItemKey = $(this).data('line-item-key');
+  const currentVariantId = $(this).data('current-variant-id');
+  const newVariantId = $(this).val();
+  const quantity = $(this).data('quantity');
+
+  if (newVariantId == currentVariantId) return;
+
+  // Remove the old variant and add the new one
+  $.ajax({
+    type: 'POST',
+    url: '/cart/change.js',
+    data: {
+      id: lineItemKey,
+      quantity: 0
+    },
+    cache: false,
+    dataType: 'json',
+    success: function () {
+      // Add the new variant with the same quantity
+      $.ajax({
+        type: 'POST',
+        url: '/cart/add.js',
+        data: {
+          id: newVariantId,
+          quantity: quantity
+        },
+        cache: false,
+        dataType: 'json',
+        success: function () {
+          // Refresh the cart content
+          $.ajax({
+            type: 'GET',
+            url: '/cart',
+            dataType: 'html',
+            success: function (cartContent) {
+              const extractedContent = $(cartContent).find('#cart-container').html();
+              $('#sidebar-cart').html(extractedContent);
+              updateCartItemCount();
+            }
+          });
+        },
+        error: function (error) {
+          console.error('Error adding new variant:', error);
+        }
+      });
+    },
+    error: function (error) {
+      console.error('Error removing old variant:', error);
+    }
+  });
+});
 
 // Initial update of the cart item count on page load
 $(document).ready(function() {

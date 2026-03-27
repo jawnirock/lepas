@@ -41,12 +41,12 @@
 <div class="product-page">
     <div class="desktop product-main">
         {% for image in product.images %}
-            <img src="{{ image | image_url: height: 1500 }}" alt="">
+            <img src="{{ image | image_url: height: 1500 }}" alt="{{ product.title }}">
         {% endfor %}
     </div>
     <div class="mobile product-slider">        
         {% for image in product.images %}
-            <img src="{{ image | image_url: height: 1500 }}" alt="">
+            <img src="{{ image | image_url: height: 1500 }}" alt="{{ product.title }}">
         {% endfor %}   
     </div>
     <div class="product-info">
@@ -103,7 +103,7 @@
                 </div>
                 <div class="dropdown-options">
                     {% if product.metafields.custom.size_chart_message %}                        
-                        <div class="dropdown-option stock">
+                        <div class="">
                             {{ product.metafields.custom.size_chart_message }}
                         </div>
                     {% endif %}
