@@ -294,6 +294,9 @@ body button:hover, body button:focus {
 .menu-left {
   left: 0;
 }
+.menu-left .shop-toggled a:nth-child(3) {
+  margin: 10px 0;
+}
 .menu-right {
   right: 0;
   direction: rtl;
@@ -513,6 +516,11 @@ body button:hover, body button:focus {
 .product-card .product-images .slick-next {
   left: auto;
   right: 5px;
+}
+.product-card .product-images .slick-prev.slick-disabled,
+.product-card .product-images .slick-next.slick-disabled {
+  opacity: 0 !important;
+  pointer-events: none;
 }
 @media only screen and (min-width: 769px) {
   .product-card .product-images:hover .slick-prev, .product-card .product-images:hover .slick-next {
@@ -2299,4 +2307,53 @@ div.geoip-popup-banner {
   margin-top: 40px;
   width: 100%;
   margin-bottom: 50px;
+}
+
+#secret-gate {
+  min-height: 100vh;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: start;
+      -ms-flex-align: start;
+          align-items: flex-start;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  padding-top: 35vh;
+}
+#secret-gate input {
+  border: 0;
+  border-bottom: 1px solid black;
+  padding: 5px;
+  width: 200px;
+  font-size: 10px;
+  text-transform: uppercase;
+}
+#secret-gate input::-webkit-input-placeholder {
+  color: #A8A8A8;
+}
+#secret-gate input::-moz-placeholder {
+  color: #A8A8A8;
+}
+#secret-gate input:-ms-input-placeholder {
+  color: #A8A8A8;
+}
+#secret-gate input::-ms-input-placeholder {
+  color: #A8A8A8;
+}
+#secret-gate input::placeholder {
+  color: #A8A8A8;
+}
+#secret-gate input:focus {
+  outline: none;
+}
+#secret-gate button {
+  background: black;
+  color: white;
+  border: 0;
+  padding: 5px 20px;
+  margin-left: 10px;
+  text-transform: uppercase;
+  font-weight: 700;
 }

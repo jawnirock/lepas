@@ -226,6 +226,11 @@ font-family: Switzer;
     }
     &-left {
         left: 0;
+        .shop-toggled {
+            a:nth-child(3) {
+                margin: 10px 0;
+            }
+        }
     }
     &-right {
         right: 0;
@@ -418,6 +423,11 @@ font-family: Switzer;
         .slick-next {
             left: auto;
             right: 5px;
+        }
+        .slick-prev.slick-disabled,
+        .slick-next.slick-disabled {
+            opacity: 0 !important;
+            pointer-events: none;
         }
         &:hover {
             .slick-prev, .slick-next {
@@ -2025,4 +2035,38 @@ div.geoip-popup-banner {
     margin-top: 40px;
     width: 100%;
     margin-bottom: 50px;
+}
+
+
+#secret {
+    &-gate {
+        min-height: 100vh;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        padding-top: 35vh;
+        input {
+            border: 0;
+            border-bottom: 1px solid black;
+            padding: 5px;
+            width: 200px;
+            font-size: 10px;
+            text-transform: uppercase;
+            &::placeholder {
+                color: #A8A8A8;
+            }
+            &:focus {
+                outline: none;
+            }
+        }
+        button {
+            background: black;
+            color: white;
+            border: 0;
+            padding: 5px 20px;
+            margin-left: 10px;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+    } 
 }

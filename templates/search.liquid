@@ -2,6 +2,7 @@
   <div class="search-title"></div>
 
   {% assign excluded_collection = collections['draft-black-friday'] %}
+  {% assign excluded_archivesale = collections['archivesale'] %}
 
   {% if search.performed %}
 
@@ -11,7 +12,7 @@
       <div id="products-grid" class="products" style="display: flex !important;">
         {% for result in search.results %}
           {% if result.object_type == 'product' %}
-            {% unless excluded_collection and result.collections contains excluded_collection %}
+            {% unless (excluded_collection and result.collections contains excluded_collection) or (excluded_archivesale and result.collections contains excluded_archivesale) %}
               {% render 'product', product: result %}
               {%- assign product_count_on_page = product_count_on_page | plus: 1 -%}
             {% endunless %}

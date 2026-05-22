@@ -22,7 +22,7 @@
                         </span>
                         {% endif %}
                         <br><br>
-                        SIZE: {{ item.variant.title }} <br>
+                        {% unless item.product.has_only_default_variant %}SIZE: {{ item.variant.title }} <br>{% endunless %}
                         {% assign colors = item.product.metafields.custom.other_colors.value %}    
                         {% for color in colors %}
                             {% if color.product_url == item.product.url %}

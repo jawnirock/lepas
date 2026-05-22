@@ -1,5 +1,14 @@
 <html lang="en">
     <head>
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-HXK03E7WJ8"></script>
+        <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-HXK03E7WJ8');
+        </script>        
         {{ content_for_header }}
 
         <title>
@@ -324,5 +333,6 @@
         });
         </script>
         {{ 'scripts.js' |  asset_url | script_tag }}
+        <script async src="https://static.shopmy.us/Affiliates/sms_aff_clicktrack.js?domain=thejude.com&expires=30"></script>
     </body>
 </html>

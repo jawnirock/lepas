@@ -93,22 +93,22 @@
                 {% endif %}
             {% endfor %}
         </div>
+        {% unless product.has_only_default_variant %}
         <div class="product-form">
             <div class="custom-dropdown">
                 <div class="selected-variant" id="selectedVariant">
                     <span>
                         SELECT A SIZE
                     </span>
-                    <img src="{{ 'dropdown.png' |  asset_url }}" alt="">                    
+                    <img src="{{ 'dropdown.png' |  asset_url }}" alt="">
                 </div>
                 <div class="dropdown-options">
-                    {% if product.metafields.custom.size_chart_message %}                        
+                    {% if product.metafields.custom.size_chart_message %}
                         <div class="">
                             {{ product.metafields.custom.size_chart_message }}
                         </div>
                     {% endif %}
                     {% for variant in product.variants %}
-                        {% assign hasStock = variant.inventory_quantity > 0 %}
                         {% if variant.inventory_quantity > 0 %}
                             <div class="dropdown-option stock" data-variant-id="{{ variant.id }}">
                                 {{ variant.title }}
@@ -125,14 +125,23 @@
                 SIZE GUIDE
             </div>
         </div>
+        {% endunless %}
         <!-- Add to Cart Form -->
         <form action="javascript:void(0);" method="post" id="addToCartForm">
-        {% for variant in product.variants %}
-            <input type="hidden" name="id" value="{{ variant.id }}">
-            <!-- Add other variant-specific input fields if needed -->
-        {% endfor %}
-        <input id="addToCartButton" disabled type="submit" value="Add to Cart">
-        <button type="button" class="klaviyo-bis-trigger">Notify Me</button>
+        {% assign default_variant = product.variants.first %}
+        <input type="hidden" name="id" value="{{ default_variant.id }}">
+        {% if product.has_only_default_variant %}
+            {% if default_variant.available %}
+                <input id="addToCartButton" type="submit" value="Add to Cart">
+                <button type="button" class="klaviyo-bis-trigger" style="display:none;">Notify Me</button>
+            {% else %}
+                <input id="addToCartButton" disabled type="submit" value="Add to Cart" style="display:none;">
+                <button type="button" class="klaviyo-bis-trigger">Notify Me</button>
+            {% endif %}
+        {% else %}
+            <input id="addToCartButton" disabled type="submit" value="Add to Cart">
+            <button type="button" class="klaviyo-bis-trigger">Notify Me</button>
+        {% endif %}
         </form>
         <div class="product-info-desc">
             <div class="preorder">

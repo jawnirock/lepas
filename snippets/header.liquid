@@ -33,7 +33,16 @@
 </header>
 
 <div class="menu menu-left">
-  {% if request.path contains '/collections/' or request.path contains '/products/' or request.path contains '/pages/new-in' %}
+  {% if collection.handle == 'archivesale' %}
+    {%- assign archive_tags = 'ALL,SANDALS,PUMPS,MULES,FLATS,HEELS,BOOTS' | split: ',' -%}
+    {% for tag in archive_tags %}
+      {% if tag == 'ALL' %}
+        <a href="/collections/archivesale" {% if current_tags == blank %}class="active"{% endif %}>ALL</a>
+      {% else %}
+        <a href="/collections/archivesale/{{ tag | upperdowncase }}" {% if current_tags contains tag or current_tags contains tag.downcase %}class="active"{% endif %}>{{ tag }}</a>
+      {% endif %}
+    {% endfor %}
+  {% elsif request.path contains '/collections/' or request.path contains '/products/' or request.path contains '/pages/new-in' %}
     <a href="#" class="shop-toggler">SHOP</a>      
     <div style="height: {{ settings.menu_left_space_1 }}"></div>
       <div class="shop-toggled">
@@ -54,8 +63,9 @@
     {% else %}
       <a href="/collections/view-all" class="shop-toggler">SHOP</a>        
       <div style="height: {{ settings.menu_left_space_1 }}"></div>
-    {% endif %}        
+    {% endif %}
 
+  {% unless collection.handle == 'archivesale' %}
     <a href="/pages/about">ABOUT</a>
     {% if template.suffix == 'collections' %}
       <div style="height: {{ settings.menu_left_space_1 }}"></div>    
@@ -76,7 +86,8 @@
         </a>
       {% endif %}
     {%- endfor %}
-    {% endif %}        
+    {% endif %}
+  {% endunless %}
 </div>
 
 <div class="menu menu-right">
@@ -86,9 +97,9 @@
       <input type="hidden" name="type" value="product">
     </form>
     </div>
-    <a class="cart-button" href="#">  BAG (<span id="cart-count">{{ cart.item_count }}</span>)
+    <a class="cart-button" href="#">  CART (<span id="cart-count">{{ cart.item_count }}</span>)
     </a>
-    <a href="/account">ACCOUNT</a>
+    {% if customer %}<a href="{{ routes.account_url }}">ACCOUNT</a>{% else %}<a href="{{ routes.account_login_url }}">LOG IN</a>{% endif %}
 </div>
 
 <div class="menu-mobile-search">
@@ -98,9 +109,9 @@
     </form>
 </div>
 <div class="menu-mobile">
-    <a class="cart-button" href="#">  BAG (<span id="cart-count">{{ cart.item_count }}</span>)
+    <a class="cart-button" href="#">  CART (<span id="cart-count">{{ cart.item_count }}</span>)
     </a>
-    <a href="/account">ACCOUNT</a>
+    {% if customer %}<a href="{{ routes.account_url }}">ACCOUNT</a>{% else %}<a href="{{ routes.account_login_url }}">LOG IN</a>{% endif %}
     <div style="height: {{ settings.menu_left_space_1 }}"></div>
     {% if request.path contains '/collections/' or request.path contains '/products/' or request.path contains '/pages/new-in' %}
     <a href="#" class="shop-toggler">SHOP</a>      

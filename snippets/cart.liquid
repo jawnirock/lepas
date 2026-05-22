@@ -1,5 +1,5 @@
 <div id="cart-container">
-    <div class="cart-title">BAG (<span id="cart-count-top">{{ cart.item_count }}</span>)</div>
+    <div class="cart-title">CART (<span id="cart-count-top">{{ cart.item_count }}</span>)</div>
     <div class="cart-items">
         {% for item in cart.items %}
             <div class="cart-item" data-variant-id="{{ item.variant.id }}">
@@ -23,16 +23,24 @@
                     <br><br>
 
                     
+                    {% unless item.product.has_only_default_variant %}
                     <div class="cart-item-size">
                         <label for="size-select-{{ item.variant.id }}">SIZE:</label>
                         <select class="size-select" id="size-select-{{ item.variant.id }}" data-line-item-key="{{ item.key }}" data-current-variant-id="{{ item.variant.id }}" data-quantity="{{ item.quantity }}">
                             {% for variant in item.product.variants %}
-                                <option value="{{ variant.id }}" {% if variant.id == item.variant.id %}selected{% endif %} {% unless variant.available %}disabled{% endunless %}>
-                                    {{ variant.title }}{% unless variant.available %} - Sold Out{% endunless %}
-                                </option>
+                                {% if variant.inventory_quantity > 0 %}
+                                    <option class="stock" value="{{ variant.id }}" {% if variant.id == item.variant.id %}selected{% endif %}>
+                                        {{ variant.title }}
+                                    </option>
+                                {% else %}
+                                    <option class="no-stock" value="{{ variant.id }}" {% if variant.id == item.variant.id %}selected{% endif %} disabled>
+                                        {{ variant.title }} - Sold Out
+                                    </option>
+                                {% endif %}
                             {% endfor %}
                         </select>
                     </div>
+                    {% endunless %}
                     {% assign colors = item.product.metafields.custom.other_colors.value %}    
                     {% for color in colors %}
                         {% if color.product_url == item.product.url %}
@@ -66,7 +74,7 @@
         </div>
         <div class="cart-footer-buttons">
             <a class="checkout" href="/checkout">Proceed to checkout</a>
-            <a class="bag" href="/cart">VIEW BAG</a>
+            <a class="bag" href="/cart">VIEW CART</a>
         </div>
     </div>
 </div>
