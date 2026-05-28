@@ -34,14 +34,13 @@
 
 <div class="menu menu-left">
   {% if collection.handle == 'archivesale' %}
-    {%- assign archive_tags = 'ALL,SANDALS,PUMPS,MULES,FLATS,HEELS,BOOTS' | split: ',' -%}
-    {% for tag in archive_tags %}
-      {% if tag == 'ALL' %}
-        <a href="/collections/archivesale" {% if current_tags == blank %}class="active"{% endif %}>ALL</a>
-      {% else %}
-        <a href="/collections/archivesale/{{ tag | upperdowncase }}" {% if current_tags contains tag or current_tags contains tag.downcase %}class="active"{% endif %}>{{ tag }}</a>
-      {% endif %}
-    {% endfor %}
+    <a href="/collections/archivesale" {% unless current_tags %}class="active"{% endunless %}>ALL</a>
+    <a href="/collections/archivesale/sandals" {% if current_tags contains 'sandals' or current_tags contains 'SANDALS' %}class="active"{% endif %}>SANDALS</a>
+    <a href="/collections/archivesale/pumps" {% if current_tags contains 'pumps' or current_tags contains 'PUMPS' %}class="active"{% endif %}>PUMPS</a>
+    <a href="/collections/archivesale/mules" {% if current_tags contains 'mules' or current_tags contains 'MULES' %}class="active"{% endif %}>MULES</a>
+    <a href="/collections/archivesale/flats" {% if current_tags contains 'flats' or current_tags contains 'FLATS' %}class="active"{% endif %}>FLATS</a>
+    <a href="/collections/archivesale/heels" {% if current_tags contains 'heels' or current_tags contains 'HEELS' %}class="active"{% endif %}>HEELS</a>
+    <a href="/collections/archivesale/boots" {% if current_tags contains 'boots' or current_tags contains 'BOOTS' %}class="active"{% endif %}>BOOTS</a>
   {% elsif request.path contains '/collections/' or request.path contains '/products/' or request.path contains '/pages/new-in' %}
     <a href="#" class="shop-toggler">SHOP</a>      
     <div style="height: {{ settings.menu_left_space_1 }}"></div>
