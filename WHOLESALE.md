@@ -17,10 +17,17 @@ where the wholesale logic would make a shared file unreadable.
 | Collections | Regular store collections, flagged with a metafield as wholesale-available |
 | Wholesale pricing | Stored as a product/variant metafield (separate from retail price) |
 | RRP | Also stored as a metafield, displayed alongside wholesale price |
-| Currencies | 3 currencies — see Open Questions for which ones |
+| Currencies | EUR, GBP, USD — live rates fetched from open.er-api.com on page load (EUR base), fallback to hardcoded defaults |
 | PDF | Branded — design/layout to be planned separately |
 | Email | Buyer fills in their info → buyer receives copy, store inbox receives order |
-| Password gate | Same sessionStorage pattern as `collection.secret.liquid` |
+| Password gate | Same sessionStorage pattern as `collection.secret.liquid` — password stored in `page.metafields.custom.password` |
+| Page slug | `/pages/wholesale` — header detects via `page.handle == 'wholesale'` |
+| Collections discovery | Loop all collections server-side, filter by `collection.metafields.custom.wholesale == true` |
+| Data loading | Server-side: all wholesale data embedded as JS object in the page template (metafields accessible in Liquid, no AJAX/API needed) |
+| Metafield keys | `custom.wholesale` (boolean, on collection), `custom.wholesale_price` (number EUR, on variant), `custom.rrp` (number EUR, on variant) |
+| Out-of-stock variants | Show as disabled in size table (greyed out, qty locked to 0) |
+| Cart persistence | sessionStorage (resets on tab/browser close) |
+| Post-submit | Cart stays after submission |
 | Component strategy | Hybrid — conditionals for small differences, new snippets for structurally different views |
 
 ---
