@@ -428,7 +428,7 @@ $(document).ready(function () {
         const currentProduct = {
             url: window.location.href, // Current page URL
             image: $('.product-main img').first().attr('src'), // First product image
-            title: $('.product-info-title').text().trim(), // Product title
+            title: $('.product-info-title h1').text().trim(), // Product title
             price: $('.product-info-title').find('br').next().text().trim() // Product price after <br>
         };
 
@@ -469,7 +469,6 @@ $(document).ready(function () {
                         <a href="${product.url}">
                             <img src="${product.image}" alt="${product.title}">
                             <p>${product.title}</p>
-                            <span>${product.price}</span>
                         </a>
                     </div>
                 `;
