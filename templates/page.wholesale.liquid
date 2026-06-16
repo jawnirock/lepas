@@ -1,0 +1,713 @@
+{% comment %}
+  page.wholesale.liquid — Wholesale portal
+  Hash-routed views, no page reloads:
+    #home              → Homepage section (customiser-editable)
+    #collections       → All wholesale products (infinite scroll)
+    #collection/{h}    → Single collection products (infinite scroll)
+    #product/{h}       → Product detail + size/qty table
+    #cart              → Order summary + buyer form
+{% endcomment %}
+
+{% comment %} ── Embed all wholesale data server-side ── {% endcomment %}
+<script>
+var wsData = { collections: [] };
+{% for collection in collections %}{% if collection.metafields.custom.wholesale %}
+(function(){
+  var col = {
+    handle: {{ collection.handle | json }},
+    title:  {{ collection.title  | json }},
+    image:  {% if collection.image %}{{ collection.image | image_url: width: 800 | json }}{% else %}null{% endif %},
+    products: []
+  };
+  {% for product in collection.products %}(function(){
+    var p = {
+      handle:      {{ product.handle | json }},
+      title:       {{ product.title  | json }},
+      description: {{ product.description | json }},
+      colorName:   null,
+      images:   [],
+      variants: [],
+      colors:   []
+    };
+    {% for image in product.images %}
+    p.images.push({{ image | image_url: height: 1500 | json }});
+    {% endfor %}
+    {% for variant in product.variants %}
+    p.variants.push({
+      id:             {{ variant.id }},
+      title:          {{ variant.title | json }},
+      available:      {{ variant.available }},
+      wholesalePrice: {{ variant.metafields.custom.wholesale_price | default: 0 }},
+      rrp:            {{ variant.metafields.custom.rrp             | default: 0 }}
+    });
+    {% endfor %}
+    {% assign colors = product.metafields.custom.other_colors.value %}
+    {% for color in colors %}
+    {% assign ws_ch = color.product_url | split: '/products/' | last | split: '?' | first | split: '#' | first %}
+    {% if ws_ch == product.handle and color.color_name %}p.colorName = {{ color.color_name | json }};{% endif %}
+    p.colors.push({
+      handle:  {{ ws_ch | json }},
+      color:   "{{ color.color }}",
+      pattern: {% if color.pattern %}{{ color.pattern | image_url: height: 300 | json }}{% else %}null{% endif %}
+    });
+    {% endfor %}
+    col.products.push(p);
+  })();{% endfor %}
+  wsData.collections.push(col);
+})();
+{% endif %}{% endfor %}
+
+var wsMarketProductHandles = {};
+wsData.collections.forEach(function(collection) {
+  collection.products.forEach(function(product) {
+    wsMarketProductHandles[product.handle] = true;
+  });
+});
+wsData.collections.forEach(function(collection) {
+  collection.products.forEach(function(product) {
+    product.colors = product.colors.filter(function(color) {
+      return wsMarketProductHandles[color.handle];
+    });
+  });
+});
+</script>
+
+{% comment %} ── Password gate ── {% endcomment %}
+<div id="ws-gate" data-password="{{ page.metafields.custom.password }}">
+  <div id="ws-gate-inner">
+    <form id="ws-form" autocomplete="off">
+      <input type="password" id="ws-input" placeholder="Enter password" autocomplete="off">
+      <button type="submit">Enter</button>
+      <p id="ws-error" style="display:none;">Incorrect password.</p>
+    </form>
+  </div>
+</div>
+
+{% comment %} ── Currency selection (shown once per session, after password) ── {% endcomment %}
+<div id="ws-currency-gate" style="display:none;">
+  <div id="ws-currency-gate-inner">
+    <p>Select your currency</p>
+    <div class="ws-currency-options">
+      <button class="ws-currency-pick" data-currency="EUR">EUR</button>
+      <button class="ws-currency-pick" data-currency="GBP">GBP</button>
+      <button class="ws-currency-pick" data-currency="USD">USD</button>
+    </div>
+  </div>
+</div>
+
+{% comment %} ── Main content ── {% endcomment %}
+<div id="ws-content" style="display:none;">
+
+  {% comment %} HOME {% endcomment %}
+  <div id="ws-view-home" class="ws-view">
+    {% section 'wholesale-home' %}
+  </div>
+
+  {% comment %} PRODUCTS — shared for #collections and #collection/{handle} {% endcomment %}
+  <div id="ws-view-products" class="ws-view" style="display:none;">
+    <div class="content-fit">
+      <h1 id="ws-products-title" class="products-title" hidden></h1>
+      <div id="ws-products-grid" class="products"></div>
+      <div id="ws-infinite-sentinel" aria-hidden="true"></div>
+      <div id="ws-infinite-loading" role="status" aria-live="polite" aria-atomic="true" style="display:none;">Loading…</div>
+    </div>
+  </div>
+
+  {% comment %} PRODUCT DETAIL {% endcomment %}
+  <div id="ws-view-product" class="ws-view" style="display:none;">
+    <div class="content-fit" id="ws-product-wrap"></div>
+  </div>
+
+  {% comment %} CART {% endcomment %}
+  <div id="ws-view-cart" class="ws-view" style="display:none;">
+    <div class="content-fit ws-cart-layout">
+      <div class="ws-cart-main">
+        <div id="ws-order-lines"></div>
+        <div id="ws-order-totals"></div>
+      </div>
+      <div class="ws-cart-aside">
+        <div class="ws-currency-switcher">
+          <button class="ws-currency-btn" data-currency="EUR">EUR</button>
+          <button class="ws-currency-btn" data-currency="USD">USD</button>
+          <button class="ws-currency-btn" data-currency="GBP">GBP</button>
+        </div>
+        <form id="ws-order-form" action="/contact" method="POST">
+          <input type="hidden" name="form_type" value="contact">
+          <input type="hidden" name="utf8"       value="✓">
+          <input type="hidden" id="ws-order-data" name="contact[body]" value="">
+          <div class="ws-buyer-fields">
+            <input type="text"  name="contact[name]"    id="ws-buyer-name"    placeholder="Full Name"       required>
+            <input type="text"  name="contact[company]" id="ws-buyer-company" placeholder="Company"         required>
+            <input type="email" name="contact[email]"   id="ws-buyer-email"   placeholder="Email"           required>
+            <input type="tel"   name="contact[phone]"   id="ws-buyer-phone"   placeholder="Phone">
+            <textarea           name="contact[address]" id="ws-buyer-address" placeholder="Shipping Address"></textarea>
+            <textarea           name="contact[notes]"   id="ws-buyer-notes"   placeholder="Notes"></textarea>
+          </div>
+          <div class="ws-form-actions">
+            <button type="button" id="ws-pdf-btn">Download PDF</button>
+            <button type="submit" id="ws-submit-btn">Submit Order</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+{% comment %} ── Print-only order sheet ── {% endcomment %}
+<div id="ws-print-view">
+  <div class="ws-print-header">
+    <img src="{{ 'logo.svg' | asset_url }}" alt="{{ shop.name }}" width="120" height="40">
+    <div>
+      <p>WHOLESALE ORDER</p>
+      <p id="ws-print-date"></p>
+    </div>
+  </div>
+  <div id="ws-print-buyer"></div>
+  <table id="ws-print-table">
+    <thead>
+      <tr>
+        <th>Product</th><th>Size</th><th>Qty</th>
+        <th>Wholesale</th><th>RRP</th><th>Line Total</th>
+      </tr>
+    </thead>
+    <tbody id="ws-print-lines"></tbody>
+    <tfoot>
+      <tr>
+        <td colspan="3">TOTAL</td>
+        <td id="ws-print-ws-total"></td>
+        <td id="ws-print-rrp-total"></td>
+        <td></td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────
+//  CONSTANTS
+// ─────────────────────────────────────────────────────────────────
+var WS_BATCH = 12;
+var WS_LOAD_DELAY = 1500;
+var WS_PREV_ARROW = '<button type="button" class="slick-prev"><img src="{{ "arrownew.png" | asset_url }}" alt=""></button>';
+var WS_NEXT_ARROW = '<button type="button" class="slick-next"><img src="{{ "arrownew.png" | asset_url }}" alt=""></button>';
+var WS_SLICK_CFG = {
+  dots: false, arrows: true,
+  prevArrow: WS_PREV_ARROW, nextArrow: WS_NEXT_ARROW,
+  infinite: false,
+  responsive: [{ breakpoint: 769, settings: { dots: true, arrows: false } }]
+};
+
+// ─────────────────────────────────────────────────────────────────
+//  STATE
+// ─────────────────────────────────────────────────────────────────
+var wsCurrency   = sessionStorage.getItem('ws_currency') || 'EUR';
+var wsRates      = { EUR: 1, USD: 1.08, GBP: 0.86 };
+var wsOrder      = JSON.parse(sessionStorage.getItem('ws_order') || '[]');
+
+// Infinite scroll
+var wsAllProducts  = [];   // current product list being displayed
+var wsRendered     = 0;
+var wsIsLoading    = false;
+var wsObserverArmed = false;
+var wsObserver     = null;
+
+// ─────────────────────────────────────────────────────────────────
+//  CURRENCY
+// ─────────────────────────────────────────────────────────────────
+fetch('https://open.er-api.com/v6/latest/EUR')
+  .then(function(r) { return r.json(); })
+  .then(function(d) { wsRates.USD = d.rates.USD; wsRates.GBP = d.rates.GBP; wsRefreshPrices(); })
+  .catch(function() {});
+
+function wsFormat(eur) {
+  var amount = (parseFloat(eur) || 0) * wsRates[wsCurrency];
+  return { EUR: '€', USD: '$', GBP: '£' }[wsCurrency] + amount.toFixed(2);
+}
+
+function wsRefreshPrices() {
+  document.querySelectorAll('[data-ws-eur]').forEach(function(el) {
+    el.textContent = wsFormat(el.dataset.wsEur);
+  });
+  wsRenderCartTotals();
+  wsSyncCurrencyBtns();
+}
+
+function wsSyncCurrencyBtns() {
+  document.querySelectorAll('.ws-currency-btn').forEach(function(b) {
+    b.classList.toggle('active', b.dataset.currency === wsCurrency);
+  });
+}
+
+document.addEventListener('click', function(e) {
+  if (!e.target.classList.contains('ws-currency-btn')) return;
+  wsCurrency = e.target.dataset.currency;
+  sessionStorage.setItem('ws_currency', wsCurrency);
+  wsRefreshPrices();
+});
+
+// ─────────────────────────────────────────────────────────────────
+//  ROUTER
+// ─────────────────────────────────────────────────────────────────
+function wsShowView(id) {
+  document.querySelectorAll('.ws-view').forEach(function(v) {
+    v.style.display = v.id === id ? '' : 'none';
+  });
+}
+
+function wsHandleHash() {
+  var hash = location.hash.slice(1) || 'home';
+
+  if (hash === 'home') {
+    wsShowView('ws-view-home');
+    wsMenuExpand(false);
+
+  } else if (hash === 'collections') {
+    wsShowView('ws-view-products');
+    var all = [];
+    wsData.collections.forEach(function(c) { all = all.concat(c.products); });
+    wsInitGrid(all, '');
+    wsMenuExpand(true);
+
+  } else if (hash.indexOf('collection/') === 0) {
+    var handle = hash.split('/')[1];
+    var col = wsData.collections.find(function(c) { return c.handle === handle; });
+    wsShowView('ws-view-products');
+    wsInitGrid(col ? col.products : [], col ? col.title : '');
+    wsMenuExpand(true);
+
+  } else if (hash.indexOf('product/') === 0) {
+    var pHandle = hash.split('/')[1];
+    wsShowView('ws-view-product');
+    wsRenderProduct(pHandle);
+    wsMenuExpand(true);
+
+  } else if (hash === 'cart') {
+    wsShowView('ws-view-cart');
+    wsRenderOrderLines();
+    wsRenderCartTotals();
+    wsSyncCurrencyBtns();
+    wsMenuExpand(false);
+  }
+}
+
+window.addEventListener('hashchange', wsHandleHash);
+
+// ─────────────────────────────────────────────────────────────────
+//  MENU — expand/collapse collections list based on hash
+// ─────────────────────────────────────────────────────────────────
+function wsMenuExpand(open) {
+  var list = document.getElementById('ws-collections-list');
+  if (list) list.style.display = open ? '' : 'none';
+}
+
+// ─────────────────────────────────────────────────────────────────
+//  PRODUCT GRID + INFINITE SCROLL
+// ─────────────────────────────────────────────────────────────────
+function wsInitGrid(products, title) {
+  // Reset state
+  wsAllProducts = products;
+  wsRendered    = 0;
+  wsIsLoading   = false;
+  wsObserverArmed = false;
+  if (wsObserver) { wsObserver.disconnect(); wsObserver = null; }
+
+  var titleEl = document.getElementById('ws-products-title');
+  titleEl.hidden = !title;
+  if (title) titleEl.textContent = title;
+
+  var grid    = document.getElementById('ws-products-grid');
+  var loading = document.getElementById('ws-infinite-loading');
+  grid.innerHTML  = '';
+  loading.style.display = 'none';
+
+  // First batch
+  wsRenderBatch(grid);
+
+  // Set up observer if more remain
+  if (wsRendered < wsAllProducts.length) wsSetupInfiniteScroll(grid);
+}
+
+function wsRenderBatch(grid) {
+  var batch = wsAllProducts.slice(wsRendered, wsRendered + WS_BATCH);
+  batch.forEach(function(prod) {
+    var el = wsBuildCard(prod);
+    grid.appendChild(el);
+    $(el).find('.product-card-slider').slick(WS_SLICK_CFG);
+  });
+  wsRendered += batch.length;
+}
+
+function wsSetupInfiniteScroll(grid) {
+  var sentinel = document.getElementById('ws-infinite-sentinel');
+  var loading  = document.getElementById('ws-infinite-loading');
+
+  wsObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) wsLoadMore(grid, sentinel, loading);
+    });
+  }, { root: null, rootMargin: '0px', threshold: 0 });
+
+  function armOnScroll() {
+    if (wsObserverArmed) return;
+    if (window.scrollY > 80) {
+      wsObserver.observe(sentinel);
+      wsObserverArmed = true;
+      window.removeEventListener('scroll', armOnScroll, { passive: true });
+    }
+  }
+
+  window.addEventListener('scroll', armOnScroll, { passive: true });
+  armOnScroll();
+}
+
+function wsLoadMore(grid, sentinel, loading) {
+  if (wsIsLoading || wsRendered >= wsAllProducts.length) return;
+  wsIsLoading = true;
+  loading.style.display = 'block';
+  wsObserver.unobserve(sentinel);
+
+  setTimeout(function() {
+    wsRenderBatch(grid);
+    loading.style.display = 'none';
+    wsIsLoading = false;
+    if (wsRendered < wsAllProducts.length) wsObserver.observe(sentinel);
+  }, WS_LOAD_DELAY);
+}
+
+// ─────────────────────────────────────────────────────────────────
+//  BUILD PRODUCT CARD  — same HTML as snippets/product.liquid
+// ─────────────────────────────────────────────────────────────────
+function wsBuildCard(prod) {
+  var lowestPrice = prod.variants.reduce(function(min, v) {
+    return v.wholesalePrice > 0 && v.wholesalePrice < min ? v.wholesalePrice : min;
+  }, Infinity);
+  lowestPrice = isFinite(lowestPrice) ? lowestPrice : 0;
+
+  var images = prod.images.map(function(src) {
+    return '<a href="#product/' + prod.handle + '"><img src="' + wsEH(src) + '" alt="' + wsEH(prod.title) + '"></a>';
+  }).join('');
+
+  var colors = prod.colors.map(function(c) {
+    return '<a class="product-color"' +
+      ' href="#product/' + wsEH(c.handle) + '"' +
+      ' style="background-color:' + wsEH(c.color) + ';' +
+        (c.pattern ? 'background-image:url(' + wsEH(c.pattern) + ');' : '') + '"' +
+      ' tabindex="0"></a>';
+  }).join('');
+
+  var html =
+    '<div class="product-card">' +
+      '<div class="product-images product-card-slider">' + images + '</div>' +
+      '<a href="#product/' + prod.handle + '"><span>' +
+        wsEH(prod.title) + '<br>' +
+        '<span class="regular-price" data-ws-eur="' + lowestPrice + '">' + wsFormat(lowestPrice) + '</span>' +
+      '</span></a>' +
+      '<div class="product-colors">' + colors + '</div>' +
+    '</div>';
+
+  var wrap = document.createElement('div');
+  wrap.innerHTML = html;
+  return wrap.firstElementChild;
+}
+
+// ─────────────────────────────────────────────────────────────────
+//  PRODUCT DETAIL
+// ─────────────────────────────────────────────────────────────────
+function wsRenderProduct(handle) {
+  var prod = null;
+  wsData.collections.forEach(function(c) {
+    c.products.forEach(function(p) { if (p.handle === handle) prod = p; });
+  });
+
+  var wrap = document.getElementById('ws-product-wrap');
+  if (!prod) { wrap.innerHTML = '<p>Product not found.</p>'; return; }
+
+  var imagesHtml = prod.images.map(function(src) {
+    return '<img src="' + wsEH(src) + '" alt="' + wsEH(prod.title) + '">';
+  }).join('');
+
+  var colorsHtml = prod.colors.map(function(c) {
+    var style = 'background-color:' + wsEH(c.color) + ';' +
+      (c.pattern ? 'background-image:url(' + wsEH(c.pattern) + ');' : '');
+    if (c.handle === handle) {
+      return '<a class="product-color active" style="' + style + '" tabindex="0"></a>';
+    }
+    return '<a class="product-color" href="#product/' + wsEH(c.handle) + '" style="' + style + '" tabindex="0"></a>';
+  }).join('');
+
+  var rows = prod.variants.map(function(v) {
+    var oos = !v.available;
+    var input = oos
+      ? '<input type="number" class="ws-qty" min="0" value="0" disabled>'
+      : '<input type="number" class="ws-qty" min="0" value="0"' +
+          ' data-id="'    + v.id             + '"' +
+          ' data-title="' + wsEA(v.title)    + '"' +
+          ' data-ws="'    + v.wholesalePrice + '"' +
+          ' data-rrp="'   + v.rrp            + '">';
+    return '<tr' + (oos ? ' class="ws-oos"' : '') + '>' +
+      '<td>' + wsEH(v.title) + '</td>' +
+      '<td><span data-ws-eur="' + v.wholesalePrice + '">' + wsFormat(v.wholesalePrice) + '</span></td>' +
+      '<td><span data-ws-eur="' + v.rrp + '">' + wsFormat(v.rrp) + '</span></td>' +
+      '<td>' + input + '</td>' +
+      '</tr>';
+  }).join('');
+
+  wrap.innerHTML =
+    '<div class="product-page">' +
+      '<div class="product-main desktop">' + imagesHtml + '</div>' +
+      '<div class="product-slider mobile">'  + imagesHtml + '</div>' +
+      '<div class="product-info ws-product-info">' +
+        '<div class="product-info-title">' +
+          '<h1>' + wsEH(prod.title) + '</h1>' +
+        '</div>' +
+        (prod.colorName ? '<div class="product-color-desc">COLOR: ' + wsEH(prod.colorName) + '</div>' : '') +
+        (colorsHtml ? '<div class="product-colors">' + colorsHtml + '</div>' : '') +
+        (prod.description ? '<div class="product-info-desc">' + prod.description + '</div>' : '') +
+        '<div class="ws-currency-switcher">' +
+          '<button class="ws-currency-btn" data-currency="EUR">EUR</button>' +
+          '<button class="ws-currency-btn" data-currency="USD">USD</button>' +
+          '<button class="ws-currency-btn" data-currency="GBP">GBP</button>' +
+        '</div>' +
+        '<table class="ws-variant-table">' +
+          '<thead><tr><th>Size</th><th>Wholesale</th><th>RRP</th><th>Qty</th></tr></thead>' +
+          '<tbody>' + rows + '</tbody>' +
+        '</table>' +
+        '<button type="button" class="ws-add-btn" id="ws-add-btn">Add to Order</button>' +
+      '</div>' +
+    '</div>';
+
+  // Mobile image slider — scripts.js binds statically so we init here
+  $(wrap).find('.product-slider').slick({ dots: true, arrows: false });
+
+  wsSyncCurrencyBtns();
+
+  document.getElementById('ws-add-btn').addEventListener('click', function() {
+    wsAddToOrder(prod);
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────
+//  ORDER / CART
+// ─────────────────────────────────────────────────────────────────
+function wsAddToOrder(prod) {
+  var added = false;
+  document.querySelectorAll('.ws-qty[data-id]').forEach(function(input) {
+    var qty = parseInt(input.value) || 0;
+    if (!qty) return;
+    var id  = parseInt(input.dataset.id);
+    var ex  = wsOrder.find(function(l) { return l.variantId === id; });
+    if (ex) { ex.qty += qty; } else {
+      wsOrder.push({
+        productTitle:  prod.title,
+        productHandle: prod.handle,
+        variantId:     id,
+        variantTitle:  input.dataset.title,
+        qty:           qty,
+        wholesalePrice: parseFloat(input.dataset.ws),
+        rrp:            parseFloat(input.dataset.rrp)
+      });
+    }
+    added = true;
+  });
+  var btn = document.getElementById('ws-add-btn');
+  if (!added) {
+    if (btn) { btn.textContent = 'Enter a quantity'; setTimeout(function() { btn.textContent = 'Add to Order'; }, 1500); }
+    return;
+  }
+  wsSaveOrder();
+  wsUpdateCartCount();
+  if (btn) {
+    btn.textContent = 'Added to cart';
+    btn.style.background = 'white';
+    btn.style.color = 'black';
+    btn.style.border = '1px solid black';
+    setTimeout(function() {
+      btn.textContent = 'Add to Order';
+      btn.style.background = '';
+      btn.style.color = '';
+      btn.style.border = '';
+    }, 1500);
+  }
+}
+
+function wsSaveOrder() { sessionStorage.setItem('ws_order', JSON.stringify(wsOrder)); }
+
+function wsUpdateCartCount() {
+  var n = wsOrder.reduce(function(s, l) { return s + l.qty; }, 0);
+  document.querySelectorAll('.ws-cart-count').forEach(function(el) { el.textContent = n; });
+}
+
+function wsRenderOrderLines() {
+  var el = document.getElementById('ws-order-lines');
+  if (!wsOrder.length) {
+    el.innerHTML = '<p class="ws-empty-cart">Your order is empty.</p>';
+    return;
+  }
+  el.innerHTML =
+    '<table class="ws-order-table">' +
+    '<thead><tr><th>Product</th><th>Size</th><th>Qty</th><th>Wholesale</th><th>RRP</th><th>Total</th><th></th></tr></thead>' +
+    '<tbody>' + wsOrder.map(function(line, i) {
+      return '<tr>' +
+        '<td>' + wsEH(line.productTitle)  + '</td>' +
+        '<td>' + wsEH(line.variantTitle)  + '</td>' +
+        '<td><input type="number" min="1" value="' + line.qty + '" class="ws-cart-qty" data-i="' + i + '"></td>' +
+        '<td><span data-ws-eur="' + line.wholesalePrice + '">' + wsFormat(line.wholesalePrice) + '</span></td>' +
+        '<td><span data-ws-eur="' + line.rrp            + '">' + wsFormat(line.rrp)            + '</span></td>' +
+        '<td><span data-ws-eur="' + (line.wholesalePrice * line.qty) + '">' + wsFormat(line.wholesalePrice * line.qty) + '</span></td>' +
+        '<td><button class="ws-remove-line" data-i="' + i + '">×</button></td>' +
+        '</tr>';
+    }).join('') +
+    '</tbody></table>';
+
+  el.querySelectorAll('.ws-cart-qty').forEach(function(input) {
+    input.addEventListener('change', function() {
+      var i = +this.dataset.i, qty = parseInt(this.value) || 0;
+      if (qty <= 0) wsOrder.splice(i, 1); else wsOrder[i].qty = qty;
+      wsSaveOrder(); wsUpdateCartCount(); wsRenderOrderLines(); wsRenderCartTotals();
+    });
+  });
+  el.querySelectorAll('.ws-remove-line').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      wsOrder.splice(+this.dataset.i, 1);
+      wsSaveOrder(); wsUpdateCartCount(); wsRenderOrderLines(); wsRenderCartTotals();
+    });
+  });
+}
+
+function wsRenderCartTotals() {
+  var el = document.getElementById('ws-order-totals');
+  if (!el) return;
+  var wsTotal  = wsOrder.reduce(function(s, l) { return s + l.wholesalePrice * l.qty; }, 0);
+  var rrpTotal = wsOrder.reduce(function(s, l) { return s + l.rrp            * l.qty; }, 0);
+  el.innerHTML =
+    '<div class="ws-total-row"><span>Wholesale Total</span><span>' + wsFormat(wsTotal)  + '</span></div>' +
+    '<div class="ws-total-row ws-total-rrp"><span>RRP Total</span><span>' + wsFormat(rrpTotal) + '</span></div>';
+}
+
+// ─────────────────────────────────────────────────────────────────
+//  PDF / PRINT
+// ─────────────────────────────────────────────────────────────────
+document.getElementById('ws-pdf-btn').addEventListener('click', function() {
+  wsPreparePrint(); window.print();
+});
+
+function wsPreparePrint() {
+  document.getElementById('ws-print-date').textContent = new Date().toLocaleDateString();
+
+  document.getElementById('ws-print-buyer').innerHTML =
+    '<p><strong>' + wsEH(document.getElementById('ws-buyer-name').value)    + '</strong>' +
+    ' — ' + wsEH(document.getElementById('ws-buyer-company').value) + '</p>' +
+    '<p>' + wsEH(document.getElementById('ws-buyer-email').value)   + '</p>' +
+    '<p>' + wsEH(document.getElementById('ws-buyer-address').value).replace(/\n/g, '<br>') + '</p>';
+
+  document.getElementById('ws-print-lines').innerHTML = wsOrder.map(function(l) {
+    return '<tr><td>' + wsEH(l.productTitle) + '</td><td>' + wsEH(l.variantTitle) + '</td>' +
+      '<td>' + l.qty + '</td>' +
+      '<td>' + wsFormat(l.wholesalePrice) + '</td>' +
+      '<td>' + wsFormat(l.rrp)            + '</td>' +
+      '<td>' + wsFormat(l.wholesalePrice * l.qty) + '</td></tr>';
+  }).join('');
+
+  var wsTotal  = wsOrder.reduce(function(s, l) { return s + l.wholesalePrice * l.qty; }, 0);
+  var rrpTotal = wsOrder.reduce(function(s, l) { return s + l.rrp            * l.qty; }, 0);
+  document.getElementById('ws-print-ws-total').textContent  = wsFormat(wsTotal);
+  document.getElementById('ws-print-rrp-total').textContent = wsFormat(rrpTotal);
+}
+
+// ─────────────────────────────────────────────────────────────────
+//  EMAIL
+// ─────────────────────────────────────────────────────────────────
+document.getElementById('ws-order-form').addEventListener('submit', function() {
+  var wsTotal  = wsOrder.reduce(function(s, l) { return s + l.wholesalePrice * l.qty; }, 0);
+  var rrpTotal = wsOrder.reduce(function(s, l) { return s + l.rrp            * l.qty; }, 0);
+
+  var body = 'WHOLESALE ORDER — ' + new Date().toLocaleDateString() + '\n\n' +
+    'Name:     ' + document.getElementById('ws-buyer-name').value    + '\n' +
+    'Company:  ' + document.getElementById('ws-buyer-company').value + '\n' +
+    'Address:\n' + document.getElementById('ws-buyer-address').value + '\n' +
+    'Currency: ' + wsCurrency + '\n\nORDER:\n';
+
+  wsOrder.forEach(function(l) {
+    body += l.productTitle + ' / ' + l.variantTitle +
+      ' ×' + l.qty + ' @ ' + wsFormat(l.wholesalePrice) + ' (RRP: ' + wsFormat(l.rrp) + ')\n';
+  });
+
+  body += '\nWholesale Total: ' + wsFormat(wsTotal) + '\nRRP Total: ' + wsFormat(rrpTotal);
+  var notes = document.getElementById('ws-buyer-notes').value;
+  if (notes) body += '\n\nNotes: ' + notes;
+
+  document.getElementById('ws-order-data').value = body;
+});
+
+// ─────────────────────────────────────────────────────────────────
+//  PASSWORD GATE
+// ─────────────────────────────────────────────────────────────────
+(function() {
+  var gate         = document.getElementById('ws-gate');
+  var currencyGate = document.getElementById('ws-currency-gate');
+  var content      = document.getElementById('ws-content');
+  var form         = document.getElementById('ws-form');
+  var input        = document.getElementById('ws-input');
+  var error        = document.getElementById('ws-error');
+  var password     = gate.dataset.password;
+  var KEY          = 'ws_access';
+
+  function showContent() {
+    currencyGate.style.display = 'none';
+    content.style.display      = 'block';
+    wsUpdateCartCount();
+    wsHandleHash();
+    $(window).trigger('resize');
+  }
+
+  function unlock() {
+    gate.style.display = 'none';
+    if (sessionStorage.getItem('ws_currency')) {
+      showContent();
+    } else {
+      currencyGate.style.display = '';
+    }
+  }
+
+  currencyGate.querySelectorAll('.ws-currency-pick').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      wsCurrency = this.dataset.currency;
+      sessionStorage.setItem('ws_currency', wsCurrency);
+      wsSyncCurrencyBtns();
+      showContent();
+    });
+  });
+
+  if (sessionStorage.getItem(KEY) === '1') {
+    // jQuery + Slick load after this inline script — poll until ready
+    var _wsRdy = setInterval(function() {
+      if (typeof $ !== 'undefined' && typeof $.fn.slick !== 'undefined') {
+        clearInterval(_wsRdy);
+        unlock();
+      }
+    }, 50);
+    return;
+  }
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    if (input.value === password) {
+      sessionStorage.setItem(KEY, '1');
+      unlock();
+    } else {
+      error.style.display = 'block';
+      input.value = '';
+      input.focus();
+    }
+  });
+})();
+
+// ─────────────────────────────────────────────────────────────────
+//  UTILITIES
+// ─────────────────────────────────────────────────────────────────
+function wsEH(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function wsEA(s) { return String(s || '').replace(/"/g,'&quot;'); }
+</script>

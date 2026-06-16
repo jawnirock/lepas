@@ -1,9 +1,9 @@
 {% if settings.banner_text != blank %}
   <div class="banner" style="background-color: {{ settings.banner_bg_color }}; color: {{ settings.banner_text_color }};">
-    
+
     {% if settings.banner_link != blank %}
-      <a 
-        href="{{ settings.banner_link }}" 
+      <a
+        href="{{ settings.banner_link }}"
         class="banner-text"
         style="color: {{ settings.banner_text_color }}"
         {% if settings.banner_link_new_tab %}target="_blank" rel="noopener"{% endif %}
@@ -21,28 +21,41 @@
 
 
 <header class="header">
-    <a class="header-logo" href="/">
+    <a class="header-logo" href="{% if template.suffix == 'wholesale' %}{{ page.url }}#home{% else %}/{% endif %}">
       <img src="{{ 'logo.svg' |  asset_url }}" alt="">
     </a>
+    {% unless template.suffix == 'wholesale' %}
     <div class="mobile">
       <div style="background-image: url({{ 'search.svg' |  asset_url }});" class="header-search-open mobile"></div>
       <div style="background-image: url({{ 'cart.svg' |  asset_url }});" class="header-cart mobile"></div>
       <div style="background-image: url({{ 'menu.svg' |  asset_url }});" class="header-menu-toggle mobile"></div>
       <div style="background-image: url({{ 'close.svg' |  asset_url }}); display: none;" class="header-menu-toggle mobile"></div>
     </div>
+    {% endunless %}
 </header>
 
 <div class="menu menu-left">
-  {% if collection.handle == 'archivesale' %}
+  {% if template.suffix == 'wholesale' %}
+    <a href="{{ page.url }}#collections" class="ws-collections-toggler">COLLECTIONS</a>
+    <div id="ws-collections-list" style="display:none;">
+      <div style="height: {{ settings.menu_left_space_1 }}"></div>
+      {% for collection in collections %}
+        {% if collection.metafields.custom.wholesale %}
+          <a href="{{ page.url }}#collection/{{ collection.handle }}">{{ collection.title | upcase }}</a>
+        {% endif %}
+      {% endfor %}
+      <div style="height: {{ settings.menu_left_space_2 }}"></div>
+    </div>
+  {% elsif collection.handle == 'archivesale' %}
     <a href="/collections/archivesale" {% unless current_tags %}class="active"{% endunless %}>ALL</a>
-    <a href="/collections/archivesale/archivesandals" {% if current_tags contains 'sandals' or current_tags contains 'SANDALS' %}class="active"{% endif %}>SANDALS</a>
-    <a href="/collections/archivesale/archivepumps" {% if current_tags contains 'pumps' or current_tags contains 'PUMPS' %}class="active"{% endif %}>PUMPS</a>
-    <a href="/collections/archivesale/archivemules" {% if current_tags contains 'mules' or current_tags contains 'MULES' %}class="active"{% endif %}>MULES</a>
-    <a href="/collections/archivesale/archiveflats" {% if current_tags contains 'flats' or current_tags contains 'FLATS' %}class="active"{% endif %}>FLATS</a>
-    <a href="/collections/archivesale/archiveheels" {% if current_tags contains 'heels' or current_tags contains 'HEELS' %}class="active"{% endif %}>HEELS</a>
-    <a href="/collections/archivesale/archiveboots" {% if current_tags contains 'boots' or current_tags contains 'BOOTS' %}class="active"{% endif %}>BOOTS</a>
+    <a href="/collections/archivesale/sandals" {% if current_tags contains 'sandals' or current_tags contains 'SANDALS' %}class="active"{% endif %}>SANDALS</a>
+    <a href="/collections/archivesale/pumps" {% if current_tags contains 'pumps' or current_tags contains 'PUMPS' %}class="active"{% endif %}>PUMPS</a>
+    <a href="/collections/archivesale/mules" {% if current_tags contains 'mules' or current_tags contains 'MULES' %}class="active"{% endif %}>MULES</a>
+    <a href="/collections/archivesale/flats" {% if current_tags contains 'flats' or current_tags contains 'FLATS' %}class="active"{% endif %}>FLATS</a>
+    <a href="/collections/archivesale/heels" {% if current_tags contains 'heels' or current_tags contains 'HEELS' %}class="active"{% endif %}>HEELS</a>
+    <a href="/collections/archivesale/boots" {% if current_tags contains 'boots' or current_tags contains 'BOOTS' %}class="active"{% endif %}>BOOTS</a>
   {% elsif request.path contains '/collections/' or request.path contains '/products/' or request.path contains '/pages/new-in' %}
-    <a href="#" class="shop-toggler">SHOP</a>      
+    <a href="#" class="shop-toggler">SHOP</a>
     <div style="height: {{ settings.menu_left_space_1 }}"></div>
       <div class="shop-toggled">
       {% assign home_url = shop.url | append: '/' %}
@@ -60,14 +73,14 @@
       <div style="height: {{ settings.menu_left_space_2 }}"></div>
     </div>
     {% else %}
-      <a href="/collections/view-all" class="shop-toggler">SHOP</a>        
+      <a href="/collections/view-all" class="shop-toggler">SHOP</a>
       <div style="height: {{ settings.menu_left_space_1 }}"></div>
     {% endif %}
 
-  {% unless collection.handle == 'archivesale' %}
+  {% unless collection.handle == 'archivesale' or template.suffix == 'wholesale' %}
     <a href="/pages/about">ABOUT</a>
     {% if template.suffix == 'collections' %}
-      <div style="height: {{ settings.menu_left_space_1 }}"></div>    
+      <div style="height: {{ settings.menu_left_space_1 }}"></div>
       <a href="#" class="shop-toggler">IMAGES</a>
         <div class="shop-toggled">
           {% for link in linklists.image-collections.links -%}
@@ -75,7 +88,7 @@
               {{ link.title | upcase }}
             </a>
           {%- endfor %}
-          <div style="height: {{ settings.menu_left_space_1 }}"></div>    
+          <div style="height: {{ settings.menu_left_space_1 }}"></div>
         </div>
     {% else %}
     {% for link in linklists.image-collections.links -%}
@@ -90,6 +103,9 @@
 </div>
 
 <div class="menu menu-right">
+  {% if template.suffix == 'wholesale' %}
+    <a class="ws-cart-btn" href="{{ page.url }}#cart">CART (<span class="ws-cart-count">0</span>)</a>
+  {% else %}
     <div class="header-search">
     <form action="/search" method="get" role="search">
       <input type="search" name="q" value="{{ search.terms | escape }}" placeholder="SEARCH" />
@@ -99,8 +115,10 @@
     <a class="cart-button" href="#">  CART (<span id="cart-count">{{ cart.item_count }}</span>)
     </a>
     {% if customer %}<a href="{{ routes.account_url }}">ACCOUNT</a>{% else %}<a href="{{ routes.account_login_url }}">LOG IN</a>{% endif %}
+  {% endif %}
 </div>
 
+{% unless template.suffix == 'wholesale' %}
 <div class="menu-mobile-search">
     <form action="/search" method="get" role="search">
       <input type="search" name="q" value="{{ search.terms | escape }}" placeholder="SEARCH" />
@@ -113,7 +131,7 @@
     {% if customer %}<a href="{{ routes.account_url }}">ACCOUNT</a>{% else %}<a href="{{ routes.account_login_url }}">LOG IN</a>{% endif %}
     <div style="height: {{ settings.menu_left_space_1 }}"></div>
     {% if request.path contains '/collections/' or request.path contains '/products/' or request.path contains '/pages/new-in' %}
-    <a href="#" class="shop-toggler">SHOP</a>      
+    <a href="#" class="shop-toggler">SHOP</a>
     <div style="height: {{ settings.menu_left_space_1 }}"></div>
       <div class="shop-toggled">
       {% for link in linklists.categories.links %}
@@ -130,11 +148,11 @@
       <div style="height: {{ settings.menu_left_space_2 }}"></div>
     </div>
     {% else %}
-      <a href="/collections/view-all" class="shop-toggler">SHOP</a>        
+      <a href="/collections/view-all" class="shop-toggler">SHOP</a>
       <div style="height: {{ settings.menu_left_space_1 }}"></div>
-    {% endif %}  
+    {% endif %}
     {% if template.suffix == 'collections' %}
-      <div style="height: {{ settings.menu_left_space_1 }}"></div>    
+      <div style="height: {{ settings.menu_left_space_1 }}"></div>
       <a href="#" class="shop-toggler">IMAGES</a>
         <div class="shop-toggled">
           {% for link in linklists.image-collections.links -%}
@@ -142,7 +160,7 @@
               {{ link.title | upcase }}
             </a>
           {%- endfor %}
-          <div style="height: {{ settings.menu_left_space_1 }}"></div>    
+          <div style="height: {{ settings.menu_left_space_1 }}"></div>
         </div>
     {% else %}
     {% for link in linklists.image-collections.links -%}
@@ -152,7 +170,7 @@
         </a>
       {% endif %}
     {%- endfor %}
-    {% endif %}      
+    {% endif %}
     <a href="/pages/about">ABOUT</a>
 </div>
 
@@ -163,6 +181,7 @@
     </div>
     <img class="cart-close" src="{{ 'close.svg' |  asset_url }}" alt="">
 </div>
+{% endunless %}
 
 <div class="pagespecial">
 

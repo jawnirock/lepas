@@ -68,7 +68,8 @@
         {% assign colors = product.metafields.custom.other_colors.value %}    
         <div class="product-color-desc">
             {% for color in colors %}
-                {% if color.product_url == product.url %}
+                {% assign color_handle = color.product_url | split: '/products/' | last | split: '?' | first | split: '#' | first %}
+                {% if color_handle == product.handle %}
                     {% if color.color_name %}
                         <div>
                             COLOR: {{ color.color_name }}
@@ -79,12 +80,14 @@
         </div>      
         <div class="product-colors">
             {% for color in colors %}
-                {% if color.product_url == product.url %}
+                {% assign color_handle = color.product_url | split: '/products/' | last | split: '?' | first | split: '#' | first %}
+                {% assign color_product = all_products[color_handle] %}
+                {% if color_handle == product.handle %}
                     <a class="product-color active"
                         style="background-color: {{ color.color }}; background-image: url({{ color.pattern  | image_url: height: 300 }});"
                         tabindex="0"
                     ></a>
-                {% else %}
+                {% elsif color_product != blank %}
                     <a class="product-color"
                         href="{{ color.product_url }}"
                         style="background-color: {{ color.color }}; background-image: url({{ color.pattern  | image_url: height: 300 }});"
@@ -226,4 +229,3 @@
 
 
 </div>
-

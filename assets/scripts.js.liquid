@@ -512,6 +512,57 @@ if (currencySelectors.length > 0) {
   })
 }
 
+// URL metafields aren't filtered by Shopify Markets, so verify swatch targets
+// against the current locale/market before displaying them.
+const marketProductChecks = new Map();
 
+function checkMarketProduct(handle) {
+    if (!marketProductChecks.has(handle)) {
+        const root = window.Shopify && window.Shopify.routes ? window.Shopify.routes.root : '/';
+        const request = fetch(root + 'products/' + encodeURIComponent(handle) + '.js')
+            .then(response => response.ok)
+            .catch(() => false);
+
+        marketProductChecks.set(handle, request);
+    }
+
+    return marketProductChecks.get(handle);
+}
+
+function validateMarketSwatches(scope) {
+    const swatches = [];
+
+    if (scope.matches && scope.matches('[data-market-product-handle]')) {
+        swatches.push(scope);
+    }
+    if (scope.querySelectorAll) {
+        swatches.push(...scope.querySelectorAll('[data-market-product-handle]'));
+    }
+
+    swatches.forEach(swatch => {
+        if (swatch.dataset.marketProductChecked) return;
+
+        swatch.dataset.marketProductChecked = 'true';
+        checkMarketProduct(swatch.dataset.marketProductHandle).then(exists => {
+            if (exists) {
+                swatch.style.removeProperty('display');
+            } else {
+                swatch.remove();
+            }
+        });
+    });
+}
+
+validateMarketSwatches(document);
+
+new MutationObserver(mutations => {
+    mutations.forEach(mutation => {
+        mutation.addedNodes.forEach(node => {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+                validateMarketSwatches(node);
+            }
+        });
+    });
+}).observe(document.body, { childList: true, subtree: true });
 
 

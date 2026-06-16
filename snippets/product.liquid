@@ -25,12 +25,22 @@
     </a>
     <div class="product-colors">
         {% assign colors = product.metafields.custom.other_colors.value %}                
-        {% for color in colors %}                  
-            <a class="product-color"
-                href="{{ color.product_url }}"
-                style="background-color: {{ color.color }}; background-image: url({{ color.pattern  | image_url: height: 300 }});"
-                tabindex="0"
-            ></a>
+        {% for color in colors %}
+            {% assign color_handle = color.product_url | split: '/products/' | last | split: '?' | first | split: '#' | first %}
+            {% if color_handle == product.handle %}
+                <a class="product-color"
+                    href="{{ color.product_url }}"
+                    style="background-color: {{ color.color }}; background-image: url({{ color.pattern  | image_url: height: 300 }});"
+                    tabindex="0"
+                ></a>
+            {% else %}
+                <a class="product-color"
+                    href="{{ color.product_url }}"
+                    data-market-product-handle="{{ color_handle }}"
+                    style="background-color: {{ color.color }}; background-image: url({{ color.pattern  | image_url: height: 300 }}); display: none;"
+                    tabindex="0"
+                ></a>
+            {% endif %}
         {% endfor %}
     </div>
 </div>

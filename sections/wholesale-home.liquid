@@ -1,0 +1,156 @@
+{% schema %}
+{
+  "name": "Wholesale Home",
+  "settings": [
+    {
+      "type": "select",
+      "id": "text_color",
+      "label": "Text Color",
+      "options": [
+        { "value": "#000000", "label": "Black" },
+        { "value": "#FFFFFF", "label": "White" }
+      ],
+      "default": "#000000"
+    },
+    {
+      "type": "select",
+      "id": "logo_color",
+      "label": "Logo Color",
+      "options": [
+        { "value": "black", "label": "Black" },
+        { "value": "white", "label": "White" }
+      ],
+      "default": "black"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "media_item",
+      "name": "Media Block",
+      "settings": [
+        {
+          "type": "select",
+          "id": "media_type",
+          "label": "Media Type",
+          "options": [
+            { "value": "image", "label": "Image" },
+            { "value": "video", "label": "Video" }
+          ],
+          "default": "image"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "url",
+          "id": "video_url",
+          "label": "Video URL (MP4 or external embed link)",
+          "info": "For MP4 videos use a direct link. For YouTube/Vimeo, paste the embed URL."
+        },
+        {
+          "type": "select",
+          "id": "width",
+          "label": "Width",
+          "options": [
+            { "value": "full", "label": "Full width" },
+            { "value": "half", "label": "Half width" }
+          ],
+          "default": "full"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        },
+        {
+          "type": "select",
+          "id": "visibility",
+          "label": "Visibility",
+          "options": [
+            { "value": "all",     "label": "Show Everywhere" },
+            { "value": "desktop", "label": "Show on Desktop Only" },
+            { "value": "mobile",  "label": "Show on Mobile Only" }
+          ],
+          "default": "all"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 20,
+  "presets": [
+    {
+      "name": "Wholesale Home Content",
+      "category": "Media"
+    }
+  ]
+}
+{% endschema %}
+
+<div class="home">
+  <div class="content-fit">
+    {% for block in section.blocks %}
+      <div class="media-item {{ block.settings.width }}
+        {% if block.settings.visibility == 'desktop' %} only-desktop
+        {% elsif block.settings.visibility == 'mobile' %} only-mobile
+        {% endif %}">
+        {% if block.settings.media_type == 'image' %}
+          <a href="{{ block.settings.link | escape }}">
+            <p>{{ block.settings.title }}</p>
+            <img src="{{ block.settings.image | image_url: width: 1500 }}" alt="{{ block.settings.title | escape }}">
+          </a>
+        {% elsif block.settings.media_type == 'video' %}
+          <a href="{{ block.settings.link | escape }}">
+            <video autoplay muted loop playsinline>
+              <source src="{{ block.settings.video_url }}" type="video/mp4">
+            </video>
+          </a>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<style>
+  :root {
+    --home-text-color: {{ section.settings.text_color }};
+  }
+  .home p,
+  .home h1,
+  .home h2,
+  .home h3,
+  .home a,
+  .menu a {
+    color: var(--home-text-color);
+    background-color: transparent;
+  }
+  .header-search input {
+    color: var(--home-text-color);
+    background-color: transparent;
+    border-bottom: 1px solid transparent;
+  }
+  .header-search input:focus {
+    border-color: var(--home-text-color);
+  }
+  .header-search input:focus::placeholder {
+    color: transparent;
+  }
+  .header-search input::placeholder {
+    color: var(--home-text-color);
+  }
+  @media only screen and (min-width: 769px) {
+    .header-logo img {
+      {% if section.settings.logo_color == 'white' %}
+        filter: invert(1);
+      {% else %}
+        filter: none;
+      {% endif %}
+    }
+  }
+</style>

@@ -2068,5 +2068,277 @@ div.geoip-popup-banner {
             text-transform: uppercase;
             font-weight: 700;
         }
-    } 
+    }
+}
+
+/* ─── Wholesale ─────────────────────────────────────────────────── */
+
+#ws-gate {
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    flex-direction: column;
+    padding-top: 35vh;
+    align-items: center;
+    text-align: center;
+    input {
+        border: 0;
+        border-bottom: 1px solid black;
+        padding: 5px;
+        width: 200px;
+        font-size: 10px;
+        text-transform: uppercase;
+        &::placeholder { color: #A8A8A8; }
+        &:focus { outline: none; }
+    }
+    button {
+        background: black;
+        color: white;
+        border: 0;
+        padding: 5px 20px;
+        margin-left: 10px;
+        text-transform: uppercase;
+        font-weight: 700;
+        cursor: pointer;
+    }
+    #ws-error {
+        font-size: 10px;
+        text-transform: uppercase;
+        margin-top: 10px;
+        letter-spacing: 0.05em;
+    }
+}
+
+#ws-currency-gate {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    p {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 20px;
+    }
+    .ws-currency-options {
+        display: flex;
+        gap: 10px;
+    }
+    .ws-currency-pick {
+        background: transparent;
+        color: black;
+        border: 1px solid black;
+        padding: 8px 24px;
+        font-size: 10px;
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s;
+        &:hover {
+            background: black;
+            color: white;
+        }
+    }
+}
+
+// Collections nav in header
+#ws-collections-list {
+    a { display: block; }
+}
+
+// Product info panel override for wholesale
+.ws-product-info {
+    top: 10px;
+}
+
+// Currency switcher
+.ws-currency-switcher {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    .ws-currency-btn {
+        background: none;
+        border: 1px solid black;
+        padding: 3px 10px;
+        font-size: 10px;
+        text-transform: uppercase;
+        cursor: pointer;
+        &.active {
+            background: black;
+            color: white;
+        }
+    }
+}
+
+// Variant table (product detail)
+.ws-variant-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+    margin-bottom: 20px;
+    th, td {
+        padding: 3px 10px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+    }
+    th { font-weight: 700; text-transform: uppercase; font-size: 10px; }
+    tr.ws-oos { opacity: 0.4; }
+    input[type="number"].ws-qty {
+        width: 50px;
+        border: 1px solid #ccc;
+        padding: 3px 6px;
+        font-size: 11px;
+        text-align: center;
+        &:disabled { opacity: 0.4; }
+    }
+}
+
+.ws-add-btn {
+    background: black;
+    color: white;
+    border: 0;
+    padding: 10px 30px;
+    font-size: 10px;
+    text-transform: uppercase;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    &:hover { opacity: 0.8; }
+}
+
+// Cart page layout
+.ws-cart-layout {
+    display: flex;
+    gap: 40px;
+    padding-top: 130px;
+    @media (max-width: 768px) { flex-direction: column; }
+}
+.ws-cart-main { flex: 1; }
+.ws-cart-aside { flex: 0 0 300px; }
+
+.ws-empty-cart {
+    font-size: 11px;
+    text-transform: uppercase;
+    padding: 40px 0;
+}
+
+.ws-order-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+    margin-bottom: 30px;
+    th, td {
+        padding: 8px 10px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+    }
+    th { font-weight: 700; text-transform: uppercase; font-size: 10px; }
+    input[type="number"].ws-cart-qty {
+        width: 50px;
+        border: 1px solid #ccc;
+        padding: 3px 6px;
+        font-size: 11px;
+        text-align: center;
+    }
+    .ws-remove-line {
+        background: none;
+        border: none;
+        font-size: 16px;
+        cursor: pointer;
+        color: #999;
+        padding: 0 5px;
+        &:hover { color: black; }
+    }
+}
+
+.ws-total-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    font-size: 11px;
+    text-transform: uppercase;
+    border-top: 1px solid #eee;
+    &.ws-total-rrp { opacity: 0.5; }
+}
+
+// Buyer form
+.ws-buyer-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+    input, textarea {
+        border: 0;
+        border-bottom: 1px solid #ccc;
+        padding: 6px 0;
+        font-size: 11px;
+        font-family: inherit;
+        width: 100%;
+        &::placeholder { color: #A8A8A8; }
+        &:focus { outline: none; border-color: black; }
+    }
+    textarea {
+        resize: vertical;
+        min-height: 60px;
+    }
+}
+
+.ws-form-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    button {
+        background: black;
+        color: white;
+        border: 0;
+        padding: 10px 20px;
+        font-size: 10px;
+        text-transform: uppercase;
+        font-weight: 700;
+        cursor: pointer;
+        letter-spacing: 0.05em;
+        &:hover { opacity: 0.8; }
+        &#ws-pdf-btn {
+            background: white;
+            color: black;
+            border: 1px solid black;
+        }
+    }
+}
+
+// Print view — hidden on screen, shown only when printing
+#ws-print-view { display: none; }
+
+@media print {
+    body > *:not(#ws-print-view) { display: none !important; }
+    #ws-print-view {
+        display: block !important;
+        padding: 20mm;
+        font-size: 11pt;
+    }
+    .ws-print-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 20mm;
+        img { height: 30px; }
+        p { margin: 0; font-size: 9pt; text-transform: uppercase; }
+    }
+    #ws-print-buyer { margin-bottom: 10mm; font-size: 10pt; }
+    #ws-print-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 10pt;
+        th, td {
+            padding: 5pt 8pt;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th { font-weight: 700; text-transform: uppercase; font-size: 8pt; }
+        tfoot td { border-top: 2px solid black; font-weight: 700; }
+    }
 }
