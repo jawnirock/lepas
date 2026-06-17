@@ -2150,9 +2150,22 @@ div.geoip-popup-banner {
     a { display: block; }
 }
 
-// Product info panel override for wholesale
-.ws-product-info {
-    top: 10px;
+// Product info panel override for wholesale — needs .product-page parent to match specificity of original rule
+.product-page .ws-product-info {
+    top: 70px;
+    .product-info-title { 
+        margin-bottom: 0;
+     }
+}
+
+// Per-product price display (above variant table)
+.ws-product-prices {
+    margin-bottom: 16px;
+    font-size: 10px;
+    .ws-price-label { 
+        font-size: 10px;
+    }
+    .ws-price-sep { display: inline-block; }
 }
 
 // Currency switcher
@@ -2308,37 +2321,93 @@ div.geoip-popup-banner {
             border: 1px solid black;
         }
     }
+    #ws-products-title {
+        display: none;
+    }
 }
 
 // Print view — hidden on screen, shown only when printing
 #ws-print-view { display: none; }
 
 @media print {
-    body > *:not(#ws-print-view) { display: none !important; }
+    @page { size: A4; margin: 15mm 18mm; }
+
+    // #ws-print-view lives inside .container-main (not a direct body child)
+    // so we must show container-main, then hide its other children
+    body > * { display: none !important; }
+    body > .container-main { display: block !important; }
+    .container-main > *:not(#ws-print-view) { display: none !important; }
+
     #ws-print-view {
         display: block !important;
-        padding: 20mm;
-        font-size: 11pt;
+        font-family: 'Switzer Variable', Switzer, sans-serif;
+        font-size: 10pt;
+        color: #000;
     }
+
     .ws-print-header {
         display: flex;
         justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 20mm;
-        img { height: 30px; }
-        p { margin: 0; font-size: 9pt; text-transform: uppercase; }
+        align-items: flex-end;
+        padding-bottom: 6mm;
+        border-bottom: 1px solid #000;
+        margin-bottom: 8mm;
+
+        img {
+            height: 22px;
+            filter: none;
+        }
+
+        .ws-print-meta {
+            text-align: right;
+            p {
+                margin: 0;
+                font-size: 8pt;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                line-height: 1.8;
+            }
+        }
     }
-    #ws-print-buyer { margin-bottom: 10mm; font-size: 10pt; }
+
+    #ws-print-buyer {
+        margin-bottom: 8mm;
+        font-size: 9pt;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        line-height: 1.8;
+        p { margin: 0; }
+    }
+
     #ws-print-table {
         width: 100%;
         border-collapse: collapse;
-        font-size: 10pt;
-        th, td {
-            padding: 5pt 8pt;
+
+        th {
+            font-size: 8pt;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 3pt 6pt;
+            border-bottom: 1px solid #000;
+            text-align: left;
+        }
+
+        td {
+            font-size: 9pt;
+            padding: 5pt 6pt;
             text-align: left;
             border-bottom: 1px solid #ddd;
         }
-        th { font-weight: 700; text-transform: uppercase; font-size: 8pt; }
-        tfoot td { border-top: 2px solid black; font-weight: 700; }
+
+        tfoot td {
+            border-top: 1px solid #000;
+            border-bottom: none;
+            font-size: 8pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding-top: 5pt;
+        }
     }
 }

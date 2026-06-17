@@ -21,9 +21,11 @@ var wsData = { collections: [] };
   };
   {% for product in collection.products %}(function(){
     var p = {
-      handle:      {{ product.handle | json }},
-      title:       {{ product.title  | json }},
-      description: {{ product.description | json }},
+      handle:         {{ product.handle | json }},
+      title:          {{ product.title  | json }},
+      description:    {{ product.description | json }},
+      wholesalePrice: {{ product.metafields.custom.wholesale_price | default: 0 }},
+      rrp:            {{ product.metafields.custom.rrp             | default: 0 }},
       colorName:   null,
       images:   [],
       variants: [],
@@ -34,11 +36,9 @@ var wsData = { collections: [] };
     {% endfor %}
     {% for variant in product.variants %}
     p.variants.push({
-      id:             {{ variant.id }},
-      title:          {{ variant.title | json }},
-      available:      {{ variant.available }},
-      wholesalePrice: {{ variant.metafields.custom.wholesale_price | default: 0 }},
-      rrp:            {{ variant.metafields.custom.rrp             | default: 0 }}
+      id:        {{ variant.id }},
+      title:     {{ variant.title | json }},
+      available: {{ variant.available }}
     });
     {% endfor %}
     {% assign colors = product.metafields.custom.other_colors.value %}
@@ -158,13 +158,21 @@ wsData.collections.forEach(function(collection) {
 <div id="ws-print-view">
   <div class="ws-print-header">
     <img src="{{ 'logo.svg' | asset_url }}" alt="{{ shop.name }}" width="120" height="40">
-    <div>
+    <div class="ws-print-meta">
       <p>WHOLESALE ORDER</p>
       <p id="ws-print-date"></p>
     </div>
   </div>
   <div id="ws-print-buyer"></div>
   <table id="ws-print-table">
+    <colgroup>
+      <col style="width:32%">
+      <col style="width:13%">
+      <col style="width:8%">
+      <col style="width:15%">
+      <col style="width:15%">
+      <col style="width:17%">
+    </colgroup>
     <thead>
       <tr>
         <th>Product</th><th>Size</th><th>Qty</th>
@@ -379,10 +387,7 @@ function wsLoadMore(grid, sentinel, loading) {
 //  BUILD PRODUCT CARD  — same HTML as snippets/product.liquid
 // ─────────────────────────────────────────────────────────────────
 function wsBuildCard(prod) {
-  var lowestPrice = prod.variants.reduce(function(min, v) {
-    return v.wholesalePrice > 0 && v.wholesalePrice < min ? v.wholesalePrice : min;
-  }, Infinity);
-  lowestPrice = isFinite(lowestPrice) ? lowestPrice : 0;
+  var lowestPrice = prod.wholesalePrice || 0;
 
   var images = prod.images.map(function(src) {
     return '<a href="#product/' + prod.handle + '"><img src="' + wsEH(src) + '" alt="' + wsEH(prod.title) + '"></a>';
@@ -441,17 +446,21 @@ function wsRenderProduct(handle) {
     var input = oos
       ? '<input type="number" class="ws-qty" min="0" value="0" disabled>'
       : '<input type="number" class="ws-qty" min="0" value="0"' +
-          ' data-id="'    + v.id             + '"' +
-          ' data-title="' + wsEA(v.title)    + '"' +
-          ' data-ws="'    + v.wholesalePrice + '"' +
-          ' data-rrp="'   + v.rrp            + '">';
+          ' data-id="'    + v.id          + '"' +
+          ' data-title="' + wsEA(v.title) + '">';
     return '<tr' + (oos ? ' class="ws-oos"' : '') + '>' +
       '<td>' + wsEH(v.title) + '</td>' +
-      '<td><span data-ws-eur="' + v.wholesalePrice + '">' + wsFormat(v.wholesalePrice) + '</span></td>' +
-      '<td><span data-ws-eur="' + v.rrp + '">' + wsFormat(v.rrp) + '</span></td>' +
       '<td>' + input + '</td>' +
       '</tr>';
   }).join('');
+
+  var priceHtml =
+    '<div class="ws-product-prices">' +
+      '<span class="ws-price-label">Wholesale: </span>' +
+      '<span data-ws-eur="' + prod.wholesalePrice + '">' + wsFormat(prod.wholesalePrice) + '</span><br>' +
+      '<span class="ws-price-label">RRP: </span>' +
+      '<span data-ws-eur="' + prod.rrp + '">' + wsFormat(prod.rrp) + '</span>' +
+    '</div>';
 
   wrap.innerHTML =
     '<div class="product-page">' +
@@ -461,6 +470,7 @@ function wsRenderProduct(handle) {
         '<div class="product-info-title">' +
           '<h1>' + wsEH(prod.title) + '</h1>' +
         '</div>' +
+        priceHtml +
         (prod.colorName ? '<div class="product-color-desc">COLOR: ' + wsEH(prod.colorName) + '</div>' : '') +
         (colorsHtml ? '<div class="product-colors">' + colorsHtml + '</div>' : '') +
         (prod.description ? '<div class="product-info-desc">' + prod.description + '</div>' : '') +
@@ -470,7 +480,7 @@ function wsRenderProduct(handle) {
           '<button class="ws-currency-btn" data-currency="GBP">GBP</button>' +
         '</div>' +
         '<table class="ws-variant-table">' +
-          '<thead><tr><th>Size</th><th>Wholesale</th><th>RRP</th><th>Qty</th></tr></thead>' +
+          '<thead><tr><th>Size</th><th>Qty</th></tr></thead>' +
           '<tbody>' + rows + '</tbody>' +
         '</table>' +
         '<button type="button" class="ws-add-btn" id="ws-add-btn">Add to Order</button>' +
@@ -504,8 +514,8 @@ function wsAddToOrder(prod) {
         variantId:     id,
         variantTitle:  input.dataset.title,
         qty:           qty,
-        wholesalePrice: parseFloat(input.dataset.ws),
-        rrp:            parseFloat(input.dataset.rrp)
+        wholesalePrice: prod.wholesalePrice,
+        rrp:            prod.rrp
       });
     }
     added = true;
@@ -595,10 +605,12 @@ document.getElementById('ws-pdf-btn').addEventListener('click', function() {
 function wsPreparePrint() {
   document.getElementById('ws-print-date').textContent = new Date().toLocaleDateString();
 
+  var phone = document.getElementById('ws-buyer-phone').value;
   document.getElementById('ws-print-buyer').innerHTML =
-    '<p><strong>' + wsEH(document.getElementById('ws-buyer-name').value)    + '</strong>' +
+    '<p><strong>' + wsEH(document.getElementById('ws-buyer-name').value) + '</strong>' +
     ' — ' + wsEH(document.getElementById('ws-buyer-company').value) + '</p>' +
-    '<p>' + wsEH(document.getElementById('ws-buyer-email').value)   + '</p>' +
+    '<p>' + wsEH(document.getElementById('ws-buyer-email').value) +
+    (phone ? ' · ' + wsEH(phone) : '') + '</p>' +
     '<p>' + wsEH(document.getElementById('ws-buyer-address').value).replace(/\n/g, '<br>') + '</p>';
 
   document.getElementById('ws-print-lines').innerHTML = wsOrder.map(function(l) {

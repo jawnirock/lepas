@@ -14,17 +14,17 @@ wholesale-specific logic lives in the page template and isolated `ws-` CSS rules
 | Topic | Decision |
 |---|---|
 | Collections | Regular store collections, flagged with `custom.wholesale` boolean metafield |
-| Wholesale pricing | `custom.wholesale_price` decimal (EUR) on each variant |
-| RRP | `custom.rrp` decimal (EUR) on each variant, shown next to wholesale price |
+| Wholesale pricing | `custom.wholesale_price` decimal (EUR) on each **product** |
+| RRP | `custom.rrp` decimal (EUR) on each **product**, shown next to wholesale price |
 | Currencies | EUR, GBP, USD — live rates from `open.er-api.com/v6/latest/EUR` on page load, hardcoded fallbacks |
 | Currency selection | Buyer selects currency immediately after password, before seeing any content (once per session) |
 | Password gate | Password stored in `page.metafields.custom.password`, checked against sessionStorage key `ws_access` |
 | Page detection | `template.suffix == 'wholesale'` everywhere — never based on URL or page handle |
 | Data loading | All data embedded server-side as `wsData` JS object in the template (no AJAX, no Storefront API) |
 | Collections filter | Truthy check: `{% if collection.metafields.custom.wholesale %}` (not `== true`) |
-| Product card price | Lowest variant wholesale price, displayed via `data-ws-eur` attribute, refreshed on currency change |
+| Product card price | Product-level wholesale price, displayed via `data-ws-eur` attribute, refreshed on currency change |
 | Product detail layout | Reuses `.product-page` / `.product-main` / `.product-info` CSS exactly — same as regular product page |
-| Product detail right panel order | Title → colour name → colour swatches → description → currency switcher → size/qty table → Add to Order |
+| Product detail right panel order | Title → colour name → colour swatches → description → currency switcher → wholesale/RRP prices → size/qty table → Add to Order |
 | Accordion sections | Removed (DETAILS / SIZE & FIT / DELIVERY & RETURNS not shown in wholesale) |
 | Add to Order feedback | Button text → "Added to cart", colours inverted (white bg / black border) for 1.5s, then restores |
 | Back button | Removed from product detail — browser back / menu navigation used instead |
@@ -109,10 +109,12 @@ wsData = {
         {
           handle, title,
           description,        // product.description HTML
+          wholesalePrice,     // product.metafields.custom.wholesale_price (EUR)
+          rrp,                // product.metafields.custom.rrp (EUR)
           colorName,          // colour name of this variant from other_colors metafield
           images: [],         // image URLs at height:1500
-          variants: [{ id, title, available, wholesalePrice, rrp }],
-          colors: [{ handle, color, pattern }]  // color is raw CSS value (not json-filtered)
+          variants: [{ id, title, available }],   // no prices on variants
+          colors: [{ handle, color, pattern }]    // color is raw CSS value (not json-filtered)
         }
       ]
     }
@@ -193,7 +195,8 @@ Built in JS (`wsRenderProduct`). Reuses existing `.product-page` layout CSS — 
        ├─ .product-colors      (swatches — active has no href, others link to #product/{handle})
        ├─ .product-info-desc   (product.description)
        ├─ .ws-currency-switcher
-       ├─ .ws-variant-table    (size / wholesale / RRP / qty per row)
+       ├─ .ws-product-prices   (wholesale price + RRP for the whole product)
+       ├─ .ws-variant-table    (size / qty per row — no prices on variants)
        └─ button.ws-add-btn    (type="button")
 ```
 
@@ -235,8 +238,8 @@ Order lines stored in `wsOrder` array (in-memory + sessionStorage). Cart view re
 | Namespace + key | Type | On | Purpose |
 |---|---|---|---|
 | `custom.wholesale` | Boolean | Collection | Marks collection as wholesale-available |
-| `custom.wholesale_price` | Decimal (EUR) | Variant | Wholesale unit price |
-| `custom.rrp` | Decimal (EUR) | Variant | RRP shown alongside wholesale price |
+| `custom.wholesale_price` | Decimal (EUR) | Product | Wholesale unit price |
+| `custom.rrp` | Decimal (EUR) | Product | RRP shown alongside wholesale price |
 
 ### Currency
 
