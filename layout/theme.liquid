@@ -129,6 +129,7 @@
                     </details>
                 {%- endif -%}
             {%- endcapture -%}
+            {% unless template.suffix == 'wholesale' %}
             <footer class="footer">
                 <div class="footer-wrap desktop">
                     <div class="footer-newsletter">
@@ -242,6 +243,7 @@
                     </div>
                 </div>
             </footer>
+            {% endunless %}
         </div>
         <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.js" integrity="sha512-HGOnQO9+SP1V92SrtZfjqxxtLmVzqZpjFFekvzZVWoiASSQgSr4cw9Kqd2+l8Llp4Gm0G8GIFJ4ddwZilcdb8A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>

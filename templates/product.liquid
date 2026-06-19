@@ -139,7 +139,7 @@
                 <button type="button" class="klaviyo-bis-trigger" style="display:none;">Notify Me</button>
             {% else %}
                 <input id="addToCartButton" disabled type="submit" value="Add to Cart" style="display:none;">
-                <button type="button" class="klaviyo-bis-trigger">Notify Me</button>
+                <button type="button" class="klaviyo-bis-trigger on" data-variant-id="{{ default_variant.id }}">Notify Me</button>
             {% endif %}
         {% else %}
             <input id="addToCartButton" disabled type="submit" value="Add to Cart">

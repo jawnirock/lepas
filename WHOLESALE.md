@@ -252,17 +252,131 @@ Order lines stored in `wsOrder` array (in-memory + sessionStorage). Cart view re
 
 ---
 
-## Open Questions
+## Tasks
 
-### Email
-- [ ] What email address receives the wholesale orders?
-- [ ] Should the email body include the full order table, or just a summary?
-- [ ] Shopify contact form cannot attach files — PDF is a separate manual step unless a third-party handler (Formspree, EmailJS) is used
+Feedback received from client 2026-06-18. No coding started yet — this is the plan.
 
-### PDF
-- [ ] Final branded layout (logo placement, colours, columns, footer)
-- [ ] Show selected currency only, or all three?
+---
 
-### Access
-- [ ] Single shared password, or per-buyer credentials?
-- [ ] Password rotation / expiry policy?
+### FE-1 — Currency: dropdown instead of buttons
+
+**What:** Replace the three outline buttons (EUR / GBP / USD) on the currency gate screen with a `<select>` dropdown.
+
+**In practice:**
+- Change `#ws-currency-gate` HTML: remove `.ws-currency-options` buttons, add a `<select>` with three `<option>` elements
+- Update the JS event: listen on `change` of the select instead of `click` of buttons
+- Update SCSS: style the select to match the gate's aesthetic
+- The currency switcher on the product detail page may also want the same treatment for consistency (or keep it as buttons there — to be decided)
+
+---
+
+### FE-2 — Hide footer, move "About the Brand" to left nav
+
+**What:** On the wholesale template, the footer should be fully hidden. "About the Brand" (currently absent from the wholesale nav) should appear in the left menu below "Collections".
+
+**In practice:**
+- **Footer:** wrap the footer in `{% unless template.suffix == 'wholesale' %}` in `layout/theme.liquid` (check whether there is a footer section/snippet being rendered there)
+- **About link:** in `snippets/header.liquid`, within the wholesale left-nav block, add an `<a href="/pages/about">ABOUT THE BRAND</a>` link below `#ws-collections-list`
+
+---
+
+### FE-3 — Size ordering: replace qty number inputs with line-style inputs
+
+**What:** Replace the `<input type="number">` boxes in the variant table with a more minimal text/number input styled as an underline (like Magda Butrym's showroom).
+
+**In practice:**
+- Change `wsRenderProduct` rows: `<input type="number" class="ws-qty" ...>` → `<input type="text" inputmode="numeric" class="ws-qty" ...>` (or keep `type="number"` but restyle)
+- SCSS: remove box border, add only a bottom border (`border: none; border-bottom: 1px solid black; background: none; width: 40px; text-align: center`)
+- Cart lines should remain editable the same way
+
+---
+
+### FE-4 — Sizes in two columns
+
+**What:** The size/qty table on the product detail page should split into two columns (half the sizes on the left, half on the right), matching the Magda Butrym layout.
+
+**In practice:**
+- In `wsRenderProduct`, instead of a single `<table>`, split `prod.variants` into two halves and render two tables side by side (or use CSS columns / grid)
+- SCSS: wrap both tables in a flex container, each taking 50% width
+- Cart lines remain one-per-row (full width) — this is product detail only
+
+---
+
+### FE-5 — Product image in cart / order lines + PDF
+
+**What:** Each line in the cart order summary and in the print PDF should show a small thumbnail of the product image.
+
+**In practice:**
+- `wsOrder` line objects currently store: `productTitle`, `productHandle`, `variantId`, `variantTitle`, `qty`, `wholesalePrice`, `rrp`
+- Add `imageUrl` to the order line when pushing to `wsOrder` in `wsAddToOrder` — take `prod.images[0]` (already in `wsData`)
+- In `wsRenderOrderLines`, add an `<img>` cell at the start of each row
+- Size the image via SCSS (e.g. `50px × 50px`, `object-fit: cover`)
+- Print view: include the image in `#ws-print-lines` rows too — update `wsPreparePrint()` to output an `<img>` cell and add print CSS for it
+
+---
+
+### FE-6 — Remove currency switcher from cart page
+
+**What:** The currency selector (EUR/GBP/USD buttons) should not appear on the cart/checkout page.
+
+**In practice:**
+- In the cart HTML (`#ws-view-cart`), remove the `.ws-currency-switcher` block from the aside
+- The currency is already set at the gate and should not need changing at cart stage
+- `wsRefreshPrices()` still runs on cart render so prices display correctly in the chosen currency
+
+---
+
+### FE-7 — PDF: remove duplicate date (browser print header)
+
+**What:** When printing the PDF, the browser adds its own date/time stamp (`18/06/2026, 15:03`) in the top-left of the page alongside the custom date already in `ws-print-header`. The browser one needs to go.
+
+**In practice:**
+- CSS cannot remove browser print headers — they are a browser UI setting
+- Solution: add a visible instruction next to the Download PDF button telling buyers to uncheck "Headers and footers" in the print dialog before saving
+- e.g. a small grey note: `"In the print dialog, uncheck 'Headers and footers' before saving"`
+- Alternatively, explore `@page { margin: 0mm }` with padding on `#ws-print-view` — some browsers suppress their headers when margin is 0, but this is not reliable across browsers
+
+---
+
+### FE-8 — PDF: fix missing company name in buyer block
+
+**What:** When the company field is filled in, the buyer block shows `NAME —` with nothing after the dash when company is empty, because the `—` separator is hardcoded regardless. Bug in `wsPreparePrint()`.
+
+**In practice:**
+- In `wsPreparePrint()`, conditionally append the company:
+  ```js
+  var company = document.getElementById('ws-buyer-company').value;
+  '<strong>' + name + '</strong>' + (company ? ' — ' + company : '')
+  ```
+- Same logic applies to the email submission body if it has the same pattern
+
+---
+
+### BE-1 — Manual per-currency pricing (fixed rounded prices)
+
+**What:** Instead of live conversion rates applied to the EUR price, each currency should have its own manually set price.
+
+**In practice:**
+- Add new product metafields:
+  - `custom.wholesale_price_gbp` (Decimal) — wholesale price in GBP
+  - `custom.wholesale_price_usd` (Decimal) — wholesale price in USD
+  - `custom.rrp_gbp` (Decimal) — RRP in GBP
+  - `custom.rrp_usd` (Decimal) — RRP in USD
+  - (EUR prices stay as `custom.wholesale_price` / `custom.rrp`)
+- Embed all six values in `wsData` per product
+- In `wsFormat()` / `wsRefreshPrices()`: when currency is GBP or USD, use the manual metafield value directly instead of converting from EUR. Fall back to conversion if the manual field is 0 or null
+- The live exchange rate fetch can be removed or kept as the fallback only
+- In the `data-ws-eur` attribute pattern: the attribute name becomes misleading. Either rename to `data-ws-base` or store all three values as `data-ws-eur`, `data-ws-gbp`, `data-ws-usd` on each price element
+
+---
+
+### BE-2 — Allow ordering out-of-stock products (showroom-level toggle)
+
+**What:** All sizes should be orderable regardless of inventory. This is controlled at the showroom/page level, not per product, and must not affect real Shopify inventory.
+
+**In practice:**
+- Add a boolean metafield on the **Page** object: `custom.wholesale_allow_oos`
+- In the `wsData` Liquid embed, read this flag: `{% assign ws_allow_oos = page.metafields.custom.wholesale_allow_oos %}`
+- When building variant objects, output `available: true` unconditionally when the flag is set, rather than `{{ variant.available }}`
+- In JS: the `ws-oos` class and disabled input logic in `wsRenderProduct` already reads `v.available`, so if it's forced to `true` server-side, no JS changes needed
+- This does not touch `variant.inventory_quantity` or any Shopify inventory settings — it only affects what the wholesale JS sees

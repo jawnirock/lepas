@@ -2073,15 +2073,23 @@ div.geoip-popup-banner {
 
 /* ─── Wholesale ─────────────────────────────────────────────────── */
 
-#ws-gate {
-    min-height: 100vh;
+// Shared overlay behaviour for both gates
+#ws-gate,
+#ws-currency-gate {
+    position: fixed;
+    inset: 0;
+    z-index: 500;
     display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    flex-direction: column;
-    padding-top: 35vh;
     align-items: center;
-    text-align: center;
+    justify-content: center;
+}
+
+#ws-gate {
+    #ws-gate-inner {
+        background: white;
+        padding: 50px 60px;
+        text-align: center;
+    }
     input {
         border: 0;
         border-bottom: 1px solid black;
@@ -2089,6 +2097,7 @@ div.geoip-popup-banner {
         width: 200px;
         font-size: 10px;
         text-transform: uppercase;
+        background: transparent;
         &::placeholder { color: #A8A8A8; }
         &:focus { outline: none; }
     }
@@ -2111,37 +2120,34 @@ div.geoip-popup-banner {
 }
 
 #ws-currency-gate {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    text-align: center;
+    #ws-currency-gate-inner {
+        background: white;
+        padding: 50px 60px;
+        text-align: center;
+        flex-direction: column;
+        display: flex;
+        align-items: center;
+    }
     p {
         font-size: 10px;
         text-transform: uppercase;
         letter-spacing: 0.1em;
         margin-bottom: 20px;
     }
-    .ws-currency-options {
-        display: flex;
-        gap: 10px;
+    .ws-dropdown-wrap {
+        width: 200px;
     }
-    .ws-currency-pick {
-        background: transparent;
-        color: black;
-        border: 1px solid black;
-        padding: 8px 24px;
+    button {
+        display: block;
+        margin-top: 20px;
+        background: black;
+        color: white;
+        border: 0;
+        padding: 5px 20px;
         font-size: 10px;
         text-transform: uppercase;
         font-weight: 700;
-        letter-spacing: 0.1em;
         cursor: pointer;
-        transition: background 0.15s, color 0.15s;
-        &:hover {
-            background: black;
-            color: white;
-        }
     }
 }
 
@@ -2187,6 +2193,37 @@ div.geoip-popup-banner {
     }
 }
 
+// Currency select — matches .custom-dropdown look from product page
+.ws-dropdown-wrap {
+    position: relative;
+    width: 160px;
+    margin-bottom: 20px;
+    select.ws-currency-select {
+        appearance: none;
+        width: 100%;
+        border: 0;
+        border-bottom: 1px solid black;
+        background: transparent;
+        font-family: 'Switzer Variable', sans-serif;
+        font-size: 10px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        padding: 2px 30px 2px 10px;
+        cursor: pointer;
+        &:focus { outline: none; }
+    }
+    .ws-dropdown-arrow {
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 23px;
+        pointer-events: none;
+        margin-bottom: -4px;
+    }
+}
+
 // Variant table (product detail)
 .ws-variant-table {
     width: 100%;
@@ -2194,19 +2231,20 @@ div.geoip-popup-banner {
     font-size: 11px;
     margin-bottom: 20px;
     th, td {
-        padding: 3px 10px;
+        padding: 0px 10px;
         text-align: left;
         border-bottom: 1px solid #eee;
     }
     th { font-weight: 700; text-transform: uppercase; font-size: 10px; }
-    tr.ws-oos { opacity: 0.4; }
     input[type="number"].ws-qty {
         width: 50px;
-        border: 1px solid #ccc;
-        padding: 3px 6px;
+        border: 0;
+        border-bottom: 1px solid black;
+        background: transparent;
+        padding: 6px 6px;
         font-size: 11px;
         text-align: center;
-        &:disabled { opacity: 0.4; }
+        &:focus { outline: none; }
     }
 }
 
@@ -2250,12 +2288,21 @@ div.geoip-popup-banner {
         border-bottom: 1px solid #eee;
     }
     th { font-weight: 700; text-transform: uppercase; font-size: 10px; }
+    .ws-order-img-cell img {
+        width: 50px;
+        height: 60px;
+        object-fit: cover;
+        display: block;
+    }
     input[type="number"].ws-cart-qty {
         width: 50px;
-        border: 1px solid #ccc;
+        border: 0;
+        border-bottom: 1px solid black;
+        background: transparent;
         padding: 3px 6px;
         font-size: 11px;
         text-align: center;
+        &:focus { outline: none; }
     }
     .ws-remove-line {
         background: none;
@@ -2330,7 +2377,7 @@ div.geoip-popup-banner {
 #ws-print-view { display: none; }
 
 @media print {
-    @page { size: A4; margin: 15mm 18mm; }
+    @page { size: A4; margin: 0; }
 
     // #ws-print-view lives inside .container-main (not a direct body child)
     // so we must show container-main, then hide its other children
@@ -2343,6 +2390,7 @@ div.geoip-popup-banner {
         font-family: 'Switzer Variable', Switzer, sans-serif;
         font-size: 10pt;
         color: #000;
+        padding: 15mm 18mm;
     }
 
     .ws-print-header {
@@ -2398,6 +2446,13 @@ div.geoip-popup-banner {
             padding: 5pt 6pt;
             text-align: left;
             border-bottom: 1px solid #ddd;
+        }
+
+        .ws-print-img-cell img {
+            width: 36pt;
+            height: 44pt;
+            object-fit: cover;
+            display: block;
         }
 
         tfoot td {
